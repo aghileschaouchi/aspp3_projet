@@ -21,6 +21,8 @@ Document:	   	Document Foret Blanks
 		;
 
 Foret:			ID_XML Attributs '{' F_contenu '}'
+		|		ID_XML Attributs '/'
+		|		ID_XML '/'
 		|		'{' F_contenu '}'
 		;
 
@@ -51,6 +53,5 @@ void yyerror(const char *s) {
 }
 
 int main(void) {
-	yyparse();
-	return 0;
+	return yyparse();
 }

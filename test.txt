@@ -1,2 +1,11 @@
+br/
+
+img[src="http//placehold.it/300x300"]/
+
+
+
 div[]{"hehe"}
+
+
+
 {div{"hehe" a[href="http://google.com"alt="hehe"]{"huhu"}{}{{"kaka"}}}}
