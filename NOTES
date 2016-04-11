@@ -1,0 +1,1 @@
+- mots-clefs réservés (let, in, where) peuvent etre utilisé comme nom du noeud eg. let{}, in{}, where{} et nom d'attributs eg. img[let="some value"]/

@@ -6,25 +6,37 @@
 void yyerror(const char*);
 %}
 
-%option noinput nounput
+%option noinput nounput yylineno
 
 %x TXT
-
-ID_XML ([[:alpha:]]|_[[:alnum:]_\'\.])[[:alnum:]_\'\.]*						
+%s DECL_LEFT DECL_RIGHT DECL_IN
+						
+ID_CHAR [[:alnum:]_\'\.]
+ID_XML [xX][mM][lL]{ID_CHAR}*
+ID ([[:alpha:]]|_{ID_CHAR}){ID_CHAR}*						
 TEXT ([^\"]*(\\\")*)*
 
 %%
-[xX][mM][lL]{ID_XML}   yyerror("Les étiquettes ne doivent pas commencer par une séquence de la forme xml, XML, Xml");
-{ID_XML}           {yylval.string_t = strdup(yytext); return ID_XML;}
+"let"              {return LET;}
+"in"               {return IN;}
+"where"            {return WHERE;}
+{ID_XML}           {return ID_XML;}
+{ID}               {yylval.string_t = strdup(yytext); return ID;}
+
 \"                 {BEGIN TXT; return DBL_QUOTES_OPEN;}
-<TXT>{TEXT}        {yylval.string_t = strdup(yytext); return TEXT;}
-<TXT>\"            {BEGIN INITIAL; return DBL_QUOTES_CLOSE;}
+<TXT>{
+	{TEXT}         {yylval.string_t = strdup(yytext); return TEXT;}
+	\"             {BEGIN INITIAL; return DBL_QUOTES_CLOSE;}
+}
+
 "["                {return '[';}
 "]"                {return ']';}
 "{"                {return '{';}
 "}"                {return '}';}
-"="                {return '=';}
 "/"                {return '/';}
-[[:blank:]]+       {return BLANK;}
-[[:space:]]+       {return SPACE;}
-.                  {return yytext[0];}//caractere non reconnu
+";"                {return ';';}
+"="                {return '=';}
+","                {return ',';}
+[[:blank:]]        {return SPACETAB;}
+\n                 {return EOL;}
+.                  {printf("[%c]", yytext[0]); return ERR;}//caractere non reconnu

@@ -19,8 +19,10 @@ clean:
 	rm -f *.o core *.tab.c *.tab.h* lex.yy.c $(EXEC) $(EXEC).output *~
 
 test: $(EXEC)
-	if ./$(EXEC) < test.txt ; then \
-		echo -e "\033[0;32mPASS\033[0m"; \
-	else \
-		echo -e "\033[0;31mFAIL\033[0m"; \
-	fi \
+	for fname in lex_test/*.txt ; do \
+		if ./$(EXEC) < "$$fname" ; then \
+			echo -e "$$fname: \033[0;32mPASS\033[0m"; \
+		else \
+			echo -e "$$fname: \033[0;31mFAIL\033[0m"; \
+		fi \
+	done

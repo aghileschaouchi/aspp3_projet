@@ -1,0 +1,19 @@
+let xml1 = a{};
+let x2 = a{{"huhu"}{{}}};
+
+x2;
+
+br/
+
+img[
+	src =           "http//placehold.it/300x300"
+	alt="My Image"	
+]/
+
+
+
+let[]{in{"hehe"} where{"kaka kaka"}}
+br[let="kaka" where="value"]/
+
+
+{div{"hehe" a[href="http://google.com"alt="hehe"]{"huhu"}{}{{"kaka"}}}}
