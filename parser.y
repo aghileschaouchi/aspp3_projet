@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-extern int yylineno;
-int yylex(void);
-void yyerror(const char* s);
+extern int yylex(void);
+extern void yyerror(const char* s);
+
 %}
 %define parse.error verbose
 
@@ -78,12 +78,3 @@ Blanks:			Blanks SPACETAB
 SpaceTabs:		SpaceTabs SPACETAB
 		|		{}
 		;
-
-%%
-void yyerror(const char *s) {
-	printf("Line %d : %s\n", yylineno, s);
-}
-
-int main(void) {
-	return yyparse();
-}
