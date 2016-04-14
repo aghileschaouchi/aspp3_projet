@@ -10,7 +10,8 @@ void yyerror(const char*);
 
 %x TXT
 %s DECL_LEFT DECL_RIGHT DECL_IN
-						
+				
+NUM [[:digit:]]+		
 ID_CHAR [[:alnum:]_\'\.]
 ID_XML [xX][mM][lL]{ID_CHAR}*
 ID ([[:alpha:]]|_{ID_CHAR}){ID_CHAR}*						
@@ -20,6 +21,7 @@ TEXT ([^\"]*(\\\")*)*
 "let"              {return LET;}
 "in"               {return IN;}
 "where"            {return WHERE;}
+{NUM}              {return NUM;}
 {ID_XML}           {return ID_XML;}
 {ID}               {yylval.string_t = strdup(yytext); return ID;}
 
@@ -37,6 +39,20 @@ TEXT ([^\"]*(\\\")*)*
 ";"                {return ';';}
 "="                {return '=';}
 ","                {return ',';}
+"+"                {return PLUS;}
+"-"                {return MINUS;}
+"*"                {return MULT;}
+"/"                {return DIV;}
+"("                {return BRACKET_OPN;}
+")"                {return BRACKET_CLS;;}
+"<"                {return LE;}
+"<="               {return LEQ;}
+">"                {return GE;}
+">="               {return GEQ;}
+"=="               {return EQ;}
+"&&"               {return AND;}
+"||"               {return OR;}
+"!"                {return NOT;}
 [[:blank:]]        {return SPACETAB;}
 \n                 {return EOL;}
 .                  {printf("[%c]", yytext[0]); return ERR;}//caractere non reconnu

@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
 #include "test.h"
 
 char* read_file(FILE* fp) {
