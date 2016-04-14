@@ -10,6 +10,7 @@ extern void yyerror(const char* s);
 
 %token ERR ID ID_XML DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
 %token LET FUNC IN WHERE
+%token NUM GEQ GE LEQ LE EQ OR AND NOT
 %token SPACETAB EOL
 %token	<string_t>		TEXT
 %union {
@@ -19,62 +20,66 @@ extern void yyerror(const char* s);
 %%
 
 Document:	   	Document Doc_elem Blanks
-		|		Blanks {}
+		|	Blanks {}
 		;
 
 Doc_elem:		ID_VAR SpaceTabs ';'
-		|		Expr
+                |       Declaration
+		|	Expr
 		;
 
 Expr:			Foret
-		|		Declaration
+                |       Arithm
 		;
 
-Declaration:	LET SpaceTabs ID_VAR SpaceTabs '=' SpaceTabs Foret SpaceTabs Decl_in ';'
+Arithm:                 Expr '+' Expr
+                ;
+
+Declaration:            LET SpaceTabs ID_VAR SpaceTabs '=' SpaceTabs Expr SpaceTabs Decl_in ';'
 		;
 
-ID_VAR:			ID
-		|		ID_XML
+ID_VAR:			ID | ID_XML
 		;
 
 Decl_in:		IN SpaceTabs Expr SpaceTabs
-		|		{}
+		|	{}
 		;
 
-Foret:			Foret_id Attributs Foret_accol
-		|	    Foret_id Attributs '/'
-		|		Foret_accol
+Foret:                  Foret_id Foret_accol
+                |       Foret_id '/'
+                |	Foret_id Attributs Blanks Foret_accol
+		|       Foret_id Attributs '/'
+		|	Foret_accol
 		;
 
-Foret_accol:	'{' F_contenu '}'
-		|		'{' F_contenu ID Blanks '}'
+Attributs:		'[' A_contenu ']'
+		;
+
+Foret_accol:            '{' F_contenu '}'
+		|	'{' F_contenu ID Blanks '}'
 		;
 
 Foret_id:		ID | LET | IN | WHERE
 		;
 
-Attributs:		'[' A_contenu ']' Blanks
-		|		{}
-		;
-
 A_contenu:		A_contenu Foret_id SpaceTabs '=' SpaceTabs Quoted_text Blanks
-		|		Blanks {}
+		|	Blanks {}
 		;
 
 F_contenu:		F_contenu Foret Blanks
-		|		F_contenu Quoted_text Blanks
-		|		F_contenu ID Blanks ',' Blanks
-		|		Blanks {}
+		|	F_contenu Quoted_text Blanks
+		|	F_contenu ID Blanks ',' Blanks
+		|	Blanks {}
 		;
 
-Quoted_text:	DBL_QUOTES_OPEN TEXT DBL_QUOTES_CLOSE
+Quoted_text:            DBL_QUOTES_OPEN TEXT DBL_QUOTES_CLOSE
 		;
 
 Blanks:			Blanks SPACETAB
-		|		Blanks EOL
-		|		{}
+		|	Blanks EOL
+		|	{}
 		;
 
 SpaceTabs:		SpaceTabs SPACETAB
-		|		{}
+		|	{}
 		;
