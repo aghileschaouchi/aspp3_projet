@@ -3,7 +3,8 @@
 
 #define YY_BUF_SIZE 16384
 
-extern FILE* yyin, *yyout;
+extern FILE* yyin;
+extern FILE* yyout;
 extern int yylineno;
 extern int yylex(void);
 extern void yyerror(const char* s);

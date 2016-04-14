@@ -41,6 +41,7 @@ test: build-tests
 			echo -e "$${fname%.c}: \033[0;32mPASS\033[0m"; \
 		else \
 			echo -e "$${fname%.c}: \033[0;31mFAIL\033[0m"; \
+			cat /tmp/aspp3.tmp; \
 		fi \
 	done
 
