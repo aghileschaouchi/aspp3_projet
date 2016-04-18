@@ -9,10 +9,16 @@ extern void yyerror(const char* s);
 %define parse.error verbose
 
 %token ERR ID ID_XML DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
-%token LET FUNC IN WHERE
+
+%token LET FUNC WHERE
+%right '='
+%left IN
+
 %token NUM GEQ GE LEQ LE EQ OR AND NOT
-%token BRACKET_OPN BRACKET_CLS
-%left  PLUS MINUS MULT DIV
+%left '+' '-'
+%left '*'
+%right '/'
+
 %token SPACETAB EOL
 %token	<string_t>		TEXT
 %union {
@@ -25,44 +31,42 @@ Document:	   	Document Doc_elem Blanks
 		|	Blanks {}
 		;
 
-Doc_elem:		ID_VAR SpaceTabs ';'
-                |       Declaration
-		|	Expr
+Doc_elem:               Arithm ';'
+                |       Declaration ';'
+                |       Foret
 		;
 
 Expr:			Foret
                 |       Arithm
+                |       Declaration
 		;
 
 Arithm:                 Arithm_exp
                 ;
 
-Arithm_exp:             NUM | Add | Sub | Mult | Div | Brackets
+Arithm_exp:             Id_var | NUM | Add | Sub | Mult | Div | Brackets
                 ;
 
-Brackets:               BRACKET_OPN Arithm_exp BRACKET_CLS
+Brackets:               '(' Arithm_exp ')'
                 ;
 
-Add:                    Arithm_exp PLUS Arithm_exp
+Add:                    Arithm_exp '+' Arithm_exp
                 ;
 
-Sub:                    Arithm_exp MINUS Arithm_exp
+Sub:                    Arithm_exp '-' Arithm_exp
                 ;
 
-Mult:                   Arithm_exp MULT Arithm_exp
+Mult:                   Arithm_exp '*' Arithm_exp
                 ;
 
-Div:                    Arithm_exp DIV Arithm_exp
+Div:                    Arithm_exp '/' Arithm_exp
                 ;
 
-Declaration:            LET SpaceTabs ID_VAR SpaceTabs '=' SpaceTabs Expr SpaceTabs Decl_in ';'
+Id_var:			ID | ID_XML
 		;
 
-ID_VAR:			ID | ID_XML
-		;
-
-Decl_in:		IN SpaceTabs Expr SpaceTabs
-		|	{}
+Declaration:            LET Id_var '=' Expr
+                |       LET Id_var '=' Expr IN Expr
 		;
 
 Foret:                  Foret_id Foret_accol
@@ -100,6 +104,5 @@ Blanks:			Blanks SPACETAB
 		|	{}
 		;
 
-SpaceTabs:		SpaceTabs SPACETAB
-		|	{}
+SpaceTabs:		SPACETAB | {}
 		;
