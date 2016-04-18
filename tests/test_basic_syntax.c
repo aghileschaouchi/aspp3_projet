@@ -9,15 +9,15 @@ void test(void) {
     fclose(f);
 
     //on attend que la lecture de ces chaines renvoient une erreur -> donc ca PASS
-    expect_err(scan_string("mauvaise chaine"),                      "Parse a bad string, error on ERRtest 1");
-    expect_err(scan_string("_{\"yo\"}"),                            "Parse a bad string, error on ERRtest 2");
-    expect_err(scan_string("xMLtest{\"..\"}"),                      "Parse a bad string, error on ERRtest 3");
-    expect_err(scan_string("123fail{\"...\"}"),                     "Parse a bad string, error on ERRtest 4");
-    expect_err(scan_string("avec espace{\"...\"}"),                 "Parse a bad string, error on ERRtest 5");
+    expect_err(scan_string("div{{\"test\"}"), 	           	"Parse a bad string, error on ERRtest 1");
+    expect_err(scan_string("_{\"yo\"}"),              	 	"Parse a bad string, error on ERRtest 2");
+    expect_err(scan_string("xMLtest{\"..\"}"),            	"Parse a bad string, error on ERRtest 3");
+    expect_err(scan_string("123fail{\"...\"}"),       		"Parse a bad string, error on ERRtest 4");
+    expect_err(scan_string("avec espace{\"...\"}"),   		"Parse a bad string, error on ERRtest 5");
 //    expect_err(scan_string("div{a[href=\"...\"test=\"test\"] /}"),  "Parse a bad string, error on ERRtest 6");
-    expect_err(scan_string("div\n {\"...\"}"),                      "Parse a bad string, error on ERRtest 7");
-    expect_err(scan_string("div{a\n[test=\"test\"]}"),              "Parse a bad string, error on ERRtest 8");
-    expect_err(scan_string("br\n/"),                                "Parse a bad string, error on ERRtest 9");
-    expect_err(scan_string("div{'contenu'}"),                       "Parse a bad string, error on ERRtest 10");
-    expect_err(scan_string("div{contenu avec espace}"),             "Parse a bad string, error on ERRtest 11");
+    expect_err(scan_string("div\n {\"...\"}"),              "Parse a bad string, error on ERRtest 7");
+    expect_err(scan_string("div{a\n[test=\"test\"]}"),      "Parse a bad string, error on ERRtest 8");
+    expect_err(scan_string("br\n/"),                     	"Parse a bad string, error on ERRtest 9");
+    expect_err(scan_string("div{'contenu'}"),               "Parse a bad string, error on ERRtest 10");
+    expect_err(scan_string("div{contenu avec espace}"),		"Parse a bad string, error on ERRtest 11");
 }
