@@ -11,6 +11,8 @@ extern void yyerror(const char* s);
 %token ERR ID ID_XML DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
 %token LET FUNC IN WHERE
 %token NUM GEQ GE LEQ LE EQ OR AND NOT
+%token BRACKET_OPN BRACKET_CLS
+%left  PLUS MINUS MULT DIV
 %token SPACETAB EOL
 %token	<string_t>		TEXT
 %union {
@@ -32,7 +34,25 @@ Expr:			Foret
                 |       Arithm
 		;
 
-Arithm:                 Expr '+' Expr
+Arithm:                 Arithm_exp
+                ;
+
+Arithm_exp:             NUM | Add | Sub | Mult | Div | Brackets
+                ;
+
+Brackets:               BRACKET_OPN Arithm_exp BRACKET_CLS
+                ;
+
+Add:                    Arithm_exp PLUS Arithm_exp
+                ;
+
+Sub:                    Arithm_exp MINUS Arithm_exp
+                ;
+
+Mult:                   Arithm_exp MULT Arithm_exp
+                ;
+
+Div:                    Arithm_exp DIV Arithm_exp
                 ;
 
 Declaration:            LET SpaceTabs ID_VAR SpaceTabs '=' SpaceTabs Expr SpaceTabs Decl_in ';'
