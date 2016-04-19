@@ -1,0 +1,31 @@
+div{}
+
+{div{}}
+
+{div{a{}}{{h1{}}}}
+
+br/
+
+img[src="http//placehold.it/300x300"]/
+
+test123'''...___[]{"hehe"}
+
+{div{"hehe" a[href="http://google.com"alt="hehe"]{"huhu"}{}{{"kaka"}}}}
+
+{{testParentheses{{"..."}}}}
+
+div{  "..."  }div{  a[  _123ef="test"]{"..."}}
+
+div{"..."}
+
+div{a[test="test"]{"..."}}
+
+div{ 
+ a[href="..." 
+ test="test"]
+ {"..."} 
+ }
+
+a[href="..."]/
+
+{div{"test foret sans balise"}}
