@@ -29,3 +29,9 @@ div{
 a[href="..."]/
 
 {div{"test foret sans balise"}}
+
+div{"<a href=\"www.labri.fr\"></a>"}
+
+div{"Ceci est un lien qui vous conduira au " a[href="www.labri.fr" id="lien"]{"LaBRI"} "à Bordeaux."}
+
+div{"Hello""world"}
