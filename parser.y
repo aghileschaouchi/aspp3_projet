@@ -11,15 +11,16 @@ extern void yyerror(const char* s);
 %token ERR ID_XML DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
 %left ID
 
-%token LET FUNC WHERE
+%token LET FUNC
 %right '='
+%right WHERE
 %left IN
 
 %token NUM GEQ GE LEQ LE EQ OR AND NOT
 %left '+' '-'
 %left '*' '/'
 
-%token SPACETAB EOL
+%right SPACETAB EOL
 %token	<string_t>		TEXT
 %union {
 	char* string_t;
@@ -65,9 +66,14 @@ Div:                    Arithm_exp '/' Arithm_exp
 Id_var:			ID | ID_XML
 		;
 
-Declaration:            LET Id_var '=' Expr
-                |       LET Id_var '=' Expr IN Expr
+Declaration:            LET Affect
 		;
+
+Decl_in:                Declaration SPACETAB IN Blanks Expr
+                ;
+
+Affect:                 SPACETAB Id_var SpaceTabs '=' SpaceTabs Expr
+                ;
 
 Foret:                  Foret_id Foret_accol
                 |       ID '/' | LET '/' | WHERE '/' | IN '/'

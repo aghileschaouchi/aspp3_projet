@@ -52,6 +52,6 @@ TEXT ([^\"]*(\\\")*)*
 "&&"               {return AND;}
 "||"               {return OR;}
 "!"                {return NOT;}
-[[:blank:]]        {return SPACETAB;}
-\n                 {return EOL;}
+[[:blank:]]+       {return SPACETAB;}
+[\n]+              {return EOL;}
 .                  {printf("[%c]", yytext[0]); return ERR;}//caractere non reconnu
