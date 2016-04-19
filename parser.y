@@ -8,7 +8,8 @@ extern void yyerror(const char* s);
 %}
 %define parse.error verbose
 
-%token ERR ID ID_XML DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
+%token ERR ID_XML DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
+%left ID
 
 %token LET FUNC WHERE
 %right '='
@@ -16,8 +17,7 @@ extern void yyerror(const char* s);
 
 %token NUM GEQ GE LEQ LE EQ OR AND NOT
 %left '+' '-'
-%left '*'
-%right '/'
+%left '*' '/'
 
 %token SPACETAB EOL
 %token	<string_t>		TEXT
@@ -70,7 +70,7 @@ Declaration:            LET Id_var '=' Expr
 		;
 
 Foret:                  Foret_id Foret_accol
-                |       Foret_id '/'
+                |       ID '/' | LET '/' | WHERE '/' | IN '/'
                 |	Foret_id Attributs Blanks Foret_accol
 		|       Foret_id Attributs '/'
 		|	Foret_accol
