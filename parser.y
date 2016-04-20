@@ -20,6 +20,9 @@ extern void yyerror(const char* s);
 %left '+' '-'
 %left '*' '/'
 
+%token IF
+%right THEN ELSE
+
 %token	<string_t>		TEXT
 %union {
 	char* string_t;
@@ -31,18 +34,19 @@ Document:	   	Document Doc_elem
 		|	{}
 		;
 
-Doc_elem:               Arithm ';'
+Doc_elem:               Arithm_exp ';'
                 |       Decl_global ';'
                 |       Foret
 		;
 
 Expr:			Foret
-                |       Arithm
+                |       Arithm_exp
                 |       Decl_in
                 |       Decl_where
+                |       If_then
 		;
 
-Arithm:                 Arithm_exp
+If_then:                IF Expr THEN Expr ELSE Expr
                 ;
 
 Arithm_exp:             Id_var | NUM | Add | Sub | Mult | Div | Brackets

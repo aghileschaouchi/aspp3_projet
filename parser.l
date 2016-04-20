@@ -24,6 +24,9 @@ SPACE [[:space:]]+
 "in"               {return IN;}
 "where"            {return WHERE;}
 "fun"              {return FUN;}
+"if"               {return IF;}
+"then"             {return THEN;}
+"else"             {return ELSE;}
 {NUM}              {return NUM;}
 
 {ID_XML}           {return ID_XML;}
