@@ -16,6 +16,7 @@ ID_CHAR [[:alnum:]_\'\.]
 ID_XML [xX][mM][lL]{ID_CHAR}*
 ID ([[:alpha:]]|_{ID_CHAR}){ID_CHAR}*						
 TEXT ([^\"]*(\\\")*)*
+SPACE [[:space:]]+
 
 %%
 "let"              {return LET;}
@@ -24,6 +25,7 @@ TEXT ([^\"]*(\\\")*)*
 "where"            {return WHERE;}
 "fun"              {return FUN;}
 {NUM}              {return NUM;}
+
 {ID_XML}           {return ID_XML;}
 {ID}               {yylval.string_t = strdup(yytext); return ID;}
 
@@ -33,7 +35,7 @@ TEXT ([^\"]*(\\\")*)*
 	\"             {BEGIN INITIAL; return DBL_QUOTES_CLOSE;}
 }
 
-"->"                {return FLECHE;}
+"->"               {return FLECHE;}
 "["                {return '[';}
 "]"                {return ']';}
 "{"                {return '{';}
@@ -55,6 +57,8 @@ TEXT ([^\"]*(\\\")*)*
 "&&"               {return AND;}
 "||"               {return OR;}
 "!"                {return NOT;}
-[[:blank:]]+       {return SPACETAB;}
-[\n]+              {return EOL;}
+{SPACE}            ;
+
+({ID}{SPACE}(\/|\[|\{))|(\]{SPACE}\/) {yyerror("forme illicite"); return ERR;}
+
 .                  {printf("[%c]", yytext[0]); return ERR;}//caractere non reconnu
