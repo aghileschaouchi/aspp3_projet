@@ -11,7 +11,7 @@ extern void yyerror(const char* s);
 %token ERR ID_XML DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
 %left ID
 
-%token LET FUNC
+%token LET FUN REC FLECHE
 %right '='
 %right WHERE
 %left IN
@@ -33,13 +33,14 @@ Document:	   	Document Doc_elem Blanks
 		;
 
 Doc_elem:               Arithm ';'
-                |       Declaration ';'
+                |       Decl_global ';'
                 |       Foret
 		;
 
 Expr:			Foret
                 |       Arithm
-                |       Declaration
+                |       Decl_in
+                |       Decl_where
 		;
 
 Arithm:                 Arithm_exp
@@ -66,13 +67,32 @@ Div:                    Arithm_exp '/' Arithm_exp
 Id_var:			ID | ID_XML
 		;
 
-Declaration:            LET Affect
+Decl_global:            LET Affect
+                |       LET Affect_func
 		;
 
-Decl_in:                Declaration SPACETAB IN Blanks Expr
+Decl_in:                Decl_global SPACETAB IN Blanks Expr
                 ;
 
-Affect:                 SPACETAB Id_var SpaceTabs '=' SpaceTabs Expr
+Decl_where:             Expr SPACETAB WHERE Blanks Affect
+                ;
+
+Affect:                 SPACETAB Id_var '=' Expr
+                ;
+
+Affect_func:            SPACETAB Rec_maybe Id_var Suite_args SPACETAB '=' SPACETAB FUN SPACETAB Suite_args SPACETAB FLECHE Expr
+                ;
+
+Suite_args:             Suite_args_req
+                |       {}
+                ;
+
+Suite_args_req:         Suite_args SPACETAB Id_var
+                |       SPACETAB Id_var
+                ;
+
+Rec_maybe:              REC SPACETAB
+                |       {}
                 ;
 
 Foret:                  Foret_id Foret_accol
@@ -92,7 +112,7 @@ Foret_accol:            '{' F_contenu '}'
 Foret_id:		ID | LET | IN | WHERE
 		;
 
-A_contenu:		A_contenu Foret_id SpaceTabs '=' SpaceTabs Quoted_text Blanks
+A_contenu:		A_contenu Foret_id '=' Quoted_text Blanks
 		|	Blanks {}
 		;
 

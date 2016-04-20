@@ -19,8 +19,10 @@ TEXT ([^\"]*(\\\")*)*
 
 %%
 "let"              {return LET;}
+"rec"              {return REC;}
 "in"               {return IN;}
 "where"            {return WHERE;}
+"fun"              {return FUN;}
 {NUM}              {return NUM;}
 {ID_XML}           {return ID_XML;}
 {ID}               {yylval.string_t = strdup(yytext); return ID;}
@@ -31,6 +33,7 @@ TEXT ([^\"]*(\\\")*)*
 	\"             {BEGIN INITIAL; return DBL_QUOTES_CLOSE;}
 }
 
+"->"                {return FLECHE;}
 "["                {return '[';}
 "]"                {return ']';}
 "{"                {return '{';}
