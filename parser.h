@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "parser.tab.h"
+#include "ast.h"
 
 #define YY_BUF_SIZE 16384
 
