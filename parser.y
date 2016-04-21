@@ -8,20 +8,24 @@ extern void yyerror(const char* s);
 %}
 %define parse.error verbose
 
-%token ERR ID_XML DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
-%left ID
+%token ERR DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
+%left   <string_t>  ID ID_XML
+%left '{'
 
-%token LET FUN REC FLECHE
-%right '='
+%token REC
+%right FLECHE LET _FUN
 %right WHERE
 %left IN
+%right '='
 
-%token NUM GEQ GE LEQ LE EQ OR AND NOT
+%left _GEQ _GE _LEQ _LE _EQ _OR _AND _NOT
+%left NUM
 %left '+' '-'
 %left '*' '/'
+%right '('
+%left ')'
 
-%token IF
-%right THEN ELSE
+%right IF THEN ELSE
 
 %token	<string_t>		TEXT
 %union {
@@ -46,6 +50,30 @@ Expr:			Foret
                 |       If_then
 		;
 
+Id_var:			ID | ID_XML
+		;
+
+Decl_global:            LET Affect
+		;
+
+Decl_in:                Decl_global IN Expr
+                ;
+
+Decl_where:             Expr WHERE Affect
+                ;
+
+Affect:                 Id_var Args '=' Expr
+                |       REC Id_var Args '=' Func
+                |       Id_var Args '=' Func
+                ;
+
+Func:                   _FUN Args FLECHE Expr
+                ;
+
+Args:                   Args Id_var
+                |       {}
+                ;
+
 If_then:                IF Expr THEN Expr ELSE Expr
                 ;
 
@@ -67,25 +95,10 @@ Mult:                   Arithm_exp '*' Arithm_exp
 Div:                    Arithm_exp '/' Arithm_exp
                 ;
 
-Id_var:			ID | ID_XML
-		;
-
-Decl_global:            LET Affect
-		;
-
-Decl_in:                Decl_global IN Expr
-                ;
-
-Decl_where:             Expr WHERE Affect
-                ;
-
-Affect:                 Id_var '=' Expr
-                ;
-
-Foret:                  Foret_id Foret_accol
-                |       ID '/' | LET '/' | WHERE '/' | IN '/'
-                |	Foret_id Attrs Foret_accol
-		|       Foret_id Attrs '/'
+Foret:                  ID Foret_accol
+                |       ID '/'
+                |	ID Attrs Foret_accol
+		|       ID Attrs '/'
 		|	Foret_accol
 		;
 
@@ -96,10 +109,7 @@ Foret_accol:            '{' F_contenu '}'
 		|	'{' F_contenu ID '}'
 		;
 
-Foret_id:		ID | LET | IN | WHERE
-		;
-
-A_contenu:		A_contenu Foret_id '=' Quoted_text
+A_contenu:		A_contenu ID '=' Quoted_text
 		|	{}
 		;
 

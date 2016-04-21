@@ -1,4 +1,4 @@
-- mots-clefs réservés (let, in, where) peuvent etre utilisé comme nom du noeud eg. let{}, in{}, where{} et nom d'attributs eg. img[let="some value"]/
+- mots-clefs réservés (let, in, where) NE PEUVENT etre utilisé comme nom du noeud eg. let{}, in{}, where{} et nom d'attributs eg. img[let="some value"]/
 
 ****A faire:
 
@@ -7,6 +7,6 @@
 - let x = 3 in let y = x+2 in x*y
 - Let x = 2 in z where z = x+2;
 - parentheses ???
-- fonction ? fonction récursive ?
-- if then else ?
+- fonction ? fonction récursive (ok, à checker)
+- if then else (ok)
 - match ?

@@ -23,7 +23,7 @@ SPACE [[:space:]]+
 "rec"              {return REC;}
 "in"               {return IN;}
 "where"            {return WHERE;}
-"fun"              {return FUN;}
+"fun"              {return _FUN;}
 "if"               {return IF;}
 "then"             {return THEN;}
 "else"             {return ELSE;}
@@ -52,14 +52,14 @@ SPACE [[:space:]]+
 "/"                {return '/';}
 "("                {return '(';}
 ")"                {return ')';}
-"<"                {return LE;}
-"<="               {return LEQ;}
-">"                {return GE;}
-">="               {return GEQ;}
-"=="               {return EQ;}
-"&&"               {return AND;}
-"||"               {return OR;}
-"!"                {return NOT;}
+"<"                {return _LE;}
+"<="               {return _LEQ;}
+">"                {return _GE;}
+">="               {return _GEQ;}
+"=="               {return _EQ;}
+"&&"               {return _AND;}
+"||"               {return _OR;}
+"!"                {return _NOT;}
 {SPACE}            ;
 
 ({ID}{SPACE}(\/|\[|\{))|(\]{SPACE}\/) {yyerror("forme illicite"); return ERR;}
