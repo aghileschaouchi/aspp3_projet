@@ -27,7 +27,7 @@ SPACE [[:space:]]+
 "if"               {return IF;}
 "then"             {return THEN;}
 "else"             {return ELSE;}
-{NUM}              {return NUM;}
+{NUM}              {yylval.int_t = atoi(yytext); return NUM;}
 
 {ID_XML}           {return ID_XML;}
 {ID}               {yylval.string_t = strdup(yytext); return ID;}

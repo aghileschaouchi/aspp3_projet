@@ -5,6 +5,13 @@
 extern int yylex(void);
 extern void yyerror(const char* s);
 
+struct ast * current_var = NULL;
+struct ast * current_binop = NULL;
+struct ast * current_unaryop = NULL;
+struct ast * current_integer = NULL;
+struct ast * current_decl = NULL;
+struct ast * current_expr= NULL;
+
 %}
 %define parse.error verbose
 
@@ -18,7 +25,7 @@ extern void yyerror(const char* s);
 %right '='
 
 %left _GEQ _GE _LEQ _LE _EQ _OR _AND _NOT
-%left NUM
+%left <int_t> NUM
 %left '+' '-'
 %left '*' '/'
 %right '('
@@ -27,16 +34,22 @@ extern void yyerror(const char* s);
 %right IF THEN ELSE
 
 %token	<string_t>		TEXT
+
+%type <string_t> Id_var
+%type <ast_t> Document Foret Arbre Expr Parentheses Add Sub Mult Div If_then
+
 %union {
 	char* string_t;
+        struct ast * ast_t;
+        int int_t;
 }
 %start Document												
 %%
 
-Document:		Document Arbre
-                |       Document Foret
-                |       Document LET Id_var '=' Expr ';'
-		|	Document Expr ';'
+Document:		Document Arbre {$$ = $2;}
+                |       Document Foret {$$ = $2;}
+                |       Document LET Id_var '=' Expr ';' {/*current_var = mk_var($2);*/}
+		|	Document Expr ';' {/*current_var = mk_var($2); current_decl = mk_declrec($2, current_expr);*/}
 		|	{}
 		;
 
@@ -44,36 +57,37 @@ Document:		Document Arbre
  * Variables & Expressions
  */
 
-Id_var:			ID | ID_XML
+Id_var:			ID {$$ = $1;}
+                |       ID_XML {$$ = $1;}
 		;
 
-Expr:			Foret
-                |       Arbre
-                |       NUM
-                |       Id_var
-                |       Parentheses
-                |       Add
-                |       Sub
-                |       Mult
-                |       Div
+Expr:			Foret                                       {$$ = $1;}
+                |       Arbre                                       {$$ = $1;}
+                |       NUM                                         {$$ = mk_integer($1);printf("m_num : %d\n", $$-> node -> num);}
+                |       Id_var                                      {/*$$ = (struct ast*)$1;*/}
+                |       Parentheses                                 {$$ = $1;}
+                |       Add                                         {$$ = $1;}
+                |       Sub                                         {$$ = $1;}
+                |       Mult                                        {$$ = $1;}
+                |       Div                                         {$$ = $1;}
                 |       If_then
-                |       LET Id_var '=' Expr IN Expr
-                |       Expr WHERE Id_var '=' Expr
+                |       LET Id_var '=' Expr IN Expr                 {$$ = mk_app(mk_fun($2, $4), $6);}
+                |       Expr WHERE Id_var '=' Expr                  {$$ = mk_app(mk_fun($3, $5), $1);}
 		;
 
-Parentheses:            '(' Expr ')'
+Parentheses:            '(' Expr ')'  {$$ = $2;}
                 ;
 
-Add:                    Expr '+' Expr
+Add:                    Expr '+' Expr { $$ = mk_app(mk_app($1, $3), mk_binop(PLUS));}
                 ;
 
-Sub:                    Expr '-' Expr
+Sub:                    Expr '-' Expr { $$ = mk_app(mk_app($1, $3), mk_binop(MINUS));}
                 ;
 
-Mult:                   Expr '*' Expr
+Mult:                   Expr '*' Expr { $$ = mk_app(mk_app($1, $3), mk_binop(MULT));}
                 ;
 
-Div:                    Expr '/' Expr
+Div:                    Expr '/' Expr { $$ = mk_app(mk_app($1, $3), mk_binop(DIV));}
                 ;
 
 If_then:                IF Expr THEN Expr ELSE Expr
@@ -94,7 +108,7 @@ F_contenu:		F_contenu Foret
 		;
 
 Arbre:                  ID Arbre_accol
-                |       ID '/'
+                |       ID '/' 
                 |	ID '[' Attrs ']' Arbre_accol
 		|       ID '[' Attrs ']' '/'
 		;
