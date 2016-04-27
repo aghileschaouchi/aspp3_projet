@@ -60,7 +60,7 @@ test: build-tests
 		fi \
 	done
 
-build-tests: lex.o $(EXEC).tab.o $(EXEC).o test.o
+build-tests: lex.o $(EXEC).tab.o $(EXEC).o ast.o test.o
 	for fname in tests/*.c ; do \
 		${CC} ${CFLAGS} $^ $$fname -o $${fname%.c} $(LDLIBS); \
 	done

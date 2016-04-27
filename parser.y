@@ -1,6 +1,7 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 extern int yylex(void);
 extern void yyerror(const char* s);
@@ -27,7 +28,11 @@ extern void yyerror(const char* s);
 %right IF THEN ELSE
 
 %token	<string_t>		TEXT
+%type <ast_t> Arbre Foret Arbre_accol A_contenu  Quoted_text 
+%type <attributes_t> Attrs
 %union {
+	struct attributes* attributes_t;
+	struct ast* ast_t;
 	char* string_t;
 }
 %start Document												
@@ -93,26 +98,45 @@ F_contenu:		F_contenu Foret
 		|	{}
 		;
 
-Arbre:                  ID Arbre_accol
-                |       ID '/'
-                |	ID '[' Attrs ']' Arbre_accol
-		|       ID '[' Attrs ']' '/'
+Arbre:                  ID Arbre_accol {printf("-----> id Arbre arbre_accol \n");
+                                        $$ = mk_tree($1, false, false, false, NULL, $2);
+                                       }
+                |       ID '/' {printf("-----> arbreForet Attributes arbre accol\n");
+                                $$ = mk_tree($1, false, false, false, NULL,NULL);
+			}
+		|	ID '[' Attrs ']' Arbre_accol {printf("-----> arbreForet Attributes arbre accol\n");
+                                                      $$ = mk_tree($1, false, false, false, $3,$5);
+			                              }
+		|       ID '[' Attrs ']' '/' {printf("-----> arbre Attributes \n");
+                                              $$ = mk_tree($1, false, true, false, $3, NULL);
+			                      }
 		;
 
-Arbre_accol:            '{' A_contenu '}'
-		|	'{' A_contenu Id_var '}'
+Arbre_accol:            '{' A_contenu '}' {printf("----->arrbe_accol A contenu\n");
+                                                  $$ = $2;
+                                          }
+		|	'{' A_contenu Id_var '}' {printf("-----> arbre_accol A Contenu ID \n");
+                                                  $$ = $2;
+			                          }
 		;
 
-Attrs:          	Attrs ID '=' Quoted_text
+Attrs:          	Attrs ID '=' Quoted_text {printf("-----> Creation de l'attribut \n");
+                                                 $$ = make_attribute($2,$4);}
 		|	{}
 		;
 
 A_contenu:		A_contenu Foret
-                |       A_contenu Arbre
-		|	A_contenu Quoted_text
+                |       A_contenu Arbre {printf("-----> A contenu Arbre\n");
+                                         $$ = $2;
+                                         }
+		|	A_contenu Quoted_text {printf("-----> A contenu TEXT\n");
+                                               $$ = $2;
+                                               }
 		|	A_contenu Id_var ','
 		|	{}
 		;
 
-Quoted_text:            DBL_QUOTES_OPEN TEXT DBL_QUOTES_CLOSE
+Quoted_text:            DBL_QUOTES_OPEN TEXT DBL_QUOTES_CLOSE {printf("-----> creation de TEXT\n");
+                                                               $$ = mk_word($2);
+                                                               }
 		;

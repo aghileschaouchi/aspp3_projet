@@ -108,3 +108,20 @@ struct ast * mk_declrec(char * id, struct ast * body){
     e->node->fun->body=body;
     return e;
 }
+struct attributes * make_attribute(struct ast * key, struct ast * value){
+    struct attributes * a = malloc(sizeof(struct attributes));
+    a -> key = key;
+    a -> value = value;
+    return a;
+}
+
+void push_attribute(struct attributes * a,struct tree * t ){
+    if(t -> attributes == NULL)
+        t -> attributes = a;
+    else{
+        struct attributes * tmp = t -> attributes;
+        while(tmp != NULL)
+            tmp = tmp -> next;
+        tmp = a;
+    }
+}
