@@ -28,7 +28,7 @@ extern void yyerror(const char* s);
 %right IF THEN ELSE
 
 %token	<string_t>		TEXT
-%type <ast_t> Arbre Foret Arbre_accol A_contenu  Quoted_text 
+%type <ast_t> Arbre Foret F_contenu Arbre_accol A_contenu  Quoted_text 
 %type <attributes_t> Attrs
 %union {
 	struct attributes* attributes_t;
@@ -88,12 +88,16 @@ If_then:                IF Expr THEN Expr ELSE Expr
  * Foret & Arbre
  */
 
-Foret:                  '{' F_contenu '}'
-		|	'{' F_contenu Id_var '}'
+Foret:                  '{' F_contenu '}' {$$ = $2;afficher_foret($2);}
+		|	'{' F_contenu Id_var '}' {$$ = $2;}
 		;
 
-F_contenu:		F_contenu Foret
-                |       F_contenu Arbre
+F_contenu:		F_contenu Foret {printf("-----> creation de la foret -Foret <------ \n");
+                                         $$ = mk_forest(false,NULL,$2);
+                                        }
+                |       F_contenu Arbre {printf("-----> creation de la foret -Arbe- <------ \n");
+                                         $$ = mk_forest(false,$2,NULL);
+                                         }
 		|	F_contenu Id_var ','
 		|	{}
 		;
@@ -101,7 +105,7 @@ F_contenu:		F_contenu Foret
 Arbre:                  ID Arbre_accol {printf("-----> id Arbre arbre_accol \n");
                                         $$ = mk_tree($1, false, false, false, NULL, $2);
                                        }
-                |       ID '/' {printf("-----> arbreForet Attributes arbre accol\n");
+                |       ID '/' {printf("-----> Arbre Foret Attributes arbre accol\n");
                                 $$ = mk_tree($1, false, false, false, NULL,NULL);
 			}
 		|	ID '[' Attrs ']' Arbre_accol {printf("-----> arbreForet Attributes arbre accol\n");
@@ -112,10 +116,10 @@ Arbre:                  ID Arbre_accol {printf("-----> id Arbre arbre_accol \n")
 			                      }
 		;
 
-Arbre_accol:            '{' A_contenu '}' {printf("----->arrbe_accol A contenu\n");
+Arbre_accol:            '{' A_contenu '}' {printf("----->Arbe_accol A contenu\n");
                                                   $$ = $2;
                                           }
-		|	'{' A_contenu Id_var '}' {printf("-----> arbre_accol A Contenu ID \n");
+		|	'{' A_contenu Id_var '}' {printf("-----> Arbre_accol A Contenu ID \n");
                                                   $$ = $2;
 			                          }
 		;
@@ -125,7 +129,9 @@ Attrs:          	Attrs ID '=' Quoted_text {printf("-----> Creation de l'attribut
 		|	{}
 		;
 
-A_contenu:		A_contenu Foret
+A_contenu:		A_contenu Foret {printf("-----> A contenu Foret\n");
+                                         $$ = $2;
+                                         }
                 |       A_contenu Arbre {printf("-----> A contenu Arbre\n");
                                          $$ = $2;
                                          }
@@ -136,7 +142,7 @@ A_contenu:		A_contenu Foret
 		|	{}
 		;
 
-Quoted_text:            DBL_QUOTES_OPEN TEXT DBL_QUOTES_CLOSE {printf("-----> creation de TEXT\n");
+Quoted_text:            DBL_QUOTES_OPEN TEXT DBL_QUOTES_CLOSE {printf("-----> Creation de TEXT\n");
                                                                $$ = mk_word($2);
                                                                }
 		;

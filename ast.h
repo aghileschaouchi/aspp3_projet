@@ -120,4 +120,5 @@ struct ast * mk_cond(struct ast * cond, struct ast * then_br, struct ast * else_
 struct ast * mk_declrec(char * id, struct ast * body);
 struct attributes * make_attribute(struct ast * key, struct ast * value);
 void push_attribute(struct attributes * a,struct tree * t );
+void afficher_foret(struct ast * foret);
 #endif
