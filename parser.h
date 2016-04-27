@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "parser.tab.h"
-#include "ast.h"
+
+#include "pattern_matching.h"
+#include "import.h"
 
 #define YY_BUF_SIZE 16384
 

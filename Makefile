@@ -5,7 +5,7 @@ CFLAGS = -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes 
 CC = gcc
 EXEC = parser
 
-$(EXEC): lex.o $(EXEC).tab.o $(EXEC).o ast.o main.c
+$(EXEC): lex.o $(EXEC).tab.o $(EXEC).o pattern.o ast.o machine.o pattern_matching.o import.o main.c
 	${CC} ${CFLAGS} $^ -o $@ $(LDLIBS)
 
 $(EXEC).o: $(EXEC).tab.h
@@ -16,6 +16,15 @@ lex.o: $(EXEC).tab.h lex.yy.c
 
 $(EXEC).tab.o: $(EXEC).tab.h $(EXEC).tab.c
 	${CC} -c ${CFLAGS} $(EXEC).tab.c -o $@ $(LDLIBS)
+
+import.o: import.h import.c
+	${CC} -c ${CFLAGS} import.c -o $@ $(LDLIBS)
+
+machine.o: ast.o machine.c machine.h
+	${CC} -c ${CFLAGS} machine.c -o $@ $(LDLIBS)
+
+pattern_matching.o: machine.o pattern_matching.c pattern_matching.h
+	${CC} -c ${CFLAGS} pattern_matching.c -o $@ $(LDLIBS)
 
 ast.o: pattern.o ast.c ast.h chemin.h
 	${CC} -c ${CFLAGS} ast.c -o $@ $(LDLIBS)

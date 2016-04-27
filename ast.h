@@ -1,3 +1,5 @@
+#ifndef AST
+#define AST
 #include <stdbool.h>
 #include "chemin.h"
 #include "pattern.h"
@@ -9,20 +11,20 @@ enum ast_type {
     UNARYOP,  // L'expression est un opérateur unaire (ici, nous n'avons que la
               // négation logique)
     VAR,      // L'expression est une variable
-    IMPORT,   // L'expression est correspond Ã  une importation de fichier
+    IMPORT,   // L'expression est correspond à une importation de fichier
     APP,      // L'expression est une application de fonction
     WORD,     // L'expression est un mot
     TREE,     // L'expression est un arbre
-    FOREST,   // L'expression est une forÃªt
+    FOREST,   // L'expression est une forêt
     FUN,      // L'expression est une fonction
     MATCH,    // L'expression est un filtre
-    COND,      // L'expression est une conditionnelle 
+    COND,     // L'expression est une conditionnelle
     DECLREC   // Déclarations récursives (let rec ... where rec ...)
 };
 
-enum binop{PLUS, MINUS, MULT, DIV, LEQ, LE, GEQ, GE, EQ, OR, AND};
+enum binop{PLUS, MINUS, MULT, DIV, LEQ, LE, GEQ, GE, EQ, NEQ,OR, AND,EMIT};
 
-enum unaryop {NOT};
+enum unaryop {NOT,NEG};
 
 struct ast;
 
@@ -33,9 +35,10 @@ struct app{
 };
 
 struct attributes{
+    bool is_value;
     struct ast * key;
     struct ast * value;
-    struct ast * next;
+    struct attributes * next;
 };
 
 struct tree{
@@ -65,8 +68,8 @@ struct patterns{
 };
 
 struct match {
-    struct ast * ast; // expression filtrée
-    struct patterns * patterns; // liste des filtres 
+    struct ast * ast;           // expression filtrée
+    struct patterns * patterns; // liste des filtres
 };
 
 struct cond{
@@ -77,7 +80,7 @@ struct cond{
 
 struct declrec{
     char * id;
-    struct ast * body
+    struct ast * body;
 };
 
 
@@ -100,6 +103,7 @@ struct ast{
     union node * node;
 };
 
+struct ast * mk_node(void);
 struct ast * mk_integer(int n);
 struct ast * mk_binop(enum binop binop);
 struct ast * mk_unaryop(enum unaryop unaryop);
@@ -114,3 +118,4 @@ struct ast * mk_fun(char * id, struct ast * body);
 struct ast * mk_match(struct ast * ast, struct patterns * patterns);
 struct ast * mk_cond(struct ast * cond, struct ast * then_br, struct ast * else_br);
 struct ast * mk_declrec(char * id, struct ast * body);
+#endif

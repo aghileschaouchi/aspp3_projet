@@ -1,3 +1,6 @@
+#ifndef CHEMIN
+#define CHEMIN
+
 enum descr {DIR, FILENAME, DECLNAME};
 
 struct dir{
@@ -10,3 +13,4 @@ struct path{
     int n;
     struct dir * dir;
 };
+#endif
