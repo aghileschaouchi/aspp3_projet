@@ -2,11 +2,11 @@
 
 ****A faire:
 
-- Let x=y in y = z;
-- z where z = x*2;
-- let x = 3 in let y = x+2 in x*y
-- Let x = 2 in z where z = x+2;
-- parentheses ???
-- fonction ? fonction récursive (ok, à checker)
+- z where z = x*2; (ok)
+- let x = 3 in let y = x+2 in x*y; (ok)
+- let x = 2 in z where z = x+2; (ok)
+- parentheses (ok)
 - if then else (ok)
+
+- fonction ? fonction récursive
 - match ?

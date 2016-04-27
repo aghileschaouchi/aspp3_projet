@@ -1,5 +1,5 @@
 let xml1 = a{};
-let x2 = a{{"huhu"}{{}}};
+let x2 = {a{"huhu"}{{}}};
 
 x2;
 
@@ -10,10 +10,4 @@ img[
 	alt="My Image"	
 ]/
 
-
-
-let[]{in{"hehe"} where{"kaka kaka"}}
-br[let="kaka" where="value"]/
-
-
-{div{"hehe" a[href="http://google.com"alt="hehe"]{"huhu"}{}{{"kaka"}}}}
+{div{"hehe" a[href="http://google.com"alt="hehe"]{"huhu"}{}{h1{"kaka"}}}}

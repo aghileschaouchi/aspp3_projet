@@ -10,12 +10,11 @@ extern void yyerror(const char* s);
 
 %token ERR DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
 %left   <string_t>  ID ID_XML
-%left '{'
 
 %token REC
 %right FLECHE LET _FUN
 %right WHERE
-%left IN
+%right IN
 %right '='
 
 %left _GEQ _GE _LEQ _LE _EQ _OR _AND _NOT
@@ -34,88 +33,84 @@ extern void yyerror(const char* s);
 %start Document												
 %%
 
-Document:	   	Document Doc_elem
+Document:		Document Arbre
+                |       Document Foret
+                |       Document LET Id_var '=' Expr ';'
+		|	Document Expr ';'
 		|	{}
 		;
 
-Doc_elem:               Arithm_exp ';'
-                |       Decl_global ';'
-                |       Foret
-		;
-
-Expr:			Foret
-                |       Arithm_exp
-                |       Decl_in
-                |       Decl_where
-                |       If_then
-		;
+/***
+ * Variables & Expressions
+ */
 
 Id_var:			ID | ID_XML
 		;
 
-Decl_global:            LET Affect
+Expr:			Foret
+                |       Arbre
+                |       NUM
+                |       Id_var
+                |       Parentheses
+                |       Add
+                |       Sub
+                |       Mult
+                |       Div
+                |       If_then
+                |       LET Id_var '=' Expr IN Expr
+                |       Expr WHERE Id_var '=' Expr
 		;
 
-Decl_in:                Decl_global IN Expr
+Parentheses:            '(' Expr ')'
                 ;
 
-Decl_where:             Expr WHERE Affect
+Add:                    Expr '+' Expr
                 ;
 
-Affect:                 Id_var Args '=' Expr
-                |       REC Id_var Args '=' Func
-                |       Id_var Args '=' Func
+Sub:                    Expr '-' Expr
                 ;
 
-Func:                   _FUN Args FLECHE Expr
+Mult:                   Expr '*' Expr
                 ;
 
-Args:                   Args Id_var
-                |       {}
+Div:                    Expr '/' Expr
                 ;
 
 If_then:                IF Expr THEN Expr ELSE Expr
                 ;
 
-Arithm_exp:             Id_var | NUM | Add | Sub | Mult | Div | Brackets
-                ;
+/***
+ * Foret & Arbre
+ */
 
-Brackets:               '(' Arithm_exp ')'
-                ;
-
-Add:                    Arithm_exp '+' Arithm_exp
-                ;
-
-Sub:                    Arithm_exp '-' Arithm_exp
-                ;
-
-Mult:                   Arithm_exp '*' Arithm_exp
-                ;
-
-Div:                    Arithm_exp '/' Arithm_exp
-                ;
-
-Foret:                  ID Foret_accol
-                |       ID '/'
-                |	ID Attrs Foret_accol
-		|       ID Attrs '/'
-		|	Foret_accol
-		;
-
-Attrs:  		'[' A_contenu ']'
-		;
-
-Foret_accol:            '{' F_contenu '}'
-		|	'{' F_contenu ID '}'
-		;
-
-A_contenu:		A_contenu ID '=' Quoted_text
-		|	{}
+Foret:                  '{' F_contenu '}'
+		|	'{' F_contenu Id_var '}'
 		;
 
 F_contenu:		F_contenu Foret
-		|	F_contenu Quoted_text
-		|	F_contenu ID ','
+                |       F_contenu Arbre
+		|	F_contenu Id_var ','
+		|	{}
+		;
+
+Arbre:                  ID Arbre_accol
+                |       ID '/'
+                |	ID '[' Attrs ']' Arbre_accol
+		|       ID '[' Attrs ']' '/'
+		;
+
+Arbre_accol:            '{' A_contenu '}'
+		|	'{' A_contenu Id_var '}'
+		;
+
+Attrs:          	Attrs ID '=' Quoted_text
+		|	{}
+		;
+
+A_contenu:		A_contenu Foret
+                |       A_contenu Arbre
+		|	A_contenu Quoted_text
+		|	A_contenu Id_var ','
 		|	{}
 		;
 
