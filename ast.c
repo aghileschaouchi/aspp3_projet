@@ -115,11 +115,11 @@ struct attributes * make_attribute(struct ast * key, struct ast * value){
     return a;
 }
 
-void push_attribute(struct attributes * a,struct tree * t ){
-    if(t -> attributes == NULL)
-        t -> attributes = a;
+void push_attribute(struct attributes * a,struct ast * t ){
+    if(t->node->tree->attributes == NULL)
+        t->node->tree->attributes = a;
     else{
-        struct attributes * tmp = t -> attributes;
+        struct attributes * tmp = t->node->tree-> attributes;
         while(tmp != NULL)
             tmp = tmp -> next;
         tmp = a;

@@ -50,19 +50,20 @@ Document:		Document Arbre {$$ = $2;emit("test.txt", $2); printf("---------------
 
 
 Arbre:                  ID Arbre_accol {printf("-----> ID Arbre Arbre_accol \n");
+   
                                         $$ = mk_tree($1, false, false, false, NULL, $2);
-                                       }      
+   }     
                 |       ID '/' {printf("-----> Arbre ID / \n");
-                                $$ =  mk_forest(false,mk_tree($1, false, false, false, NULL,NULL),NULL);
+                                $$ =  mk_tree($1, false, false, false, NULL,NULL);
 			}
 		|	ID '[' Attrs ']' Arbre_accol {printf("-----> Arbre Attributes Arbre_accol\n");
-                                                      $$ =  mk_forest(false,mk_tree($1, false, false, false, $3,$5),NULL);
+                                                      $$ =  mk_tree($1, false, false, false, $3,$5);
 			                              }
 		|       ID '[' Attrs ']' '/' {printf("-----> Arbre Attributes \n");
-                                              $$ =  mk_forest(false,mk_tree($1, false, true, false, $3, NULL),NULL);
+                                              $$ =  mk_tree($1, false, true, false, $3, NULL);
 			                      }
                 |       Arbre_accol {printf("-----> Arbre Arbre_accol \n");
-                                     $$ =  mk_forest(false,$1,NULL);
+                                     $$ =  $1;
 			            }
 		;
 
@@ -81,7 +82,10 @@ A_contenu:	        A_contenu Arbre {
                                                 if($$ == NULL){
                                                         $$ = mk_forest(false,$2,NULL);
                                                 }else{
-                                                        $$->node->forest->tail = mk_forest(false,NULL,$2);
+						  struct ast* tmp= $$;
+						  while(tmp->node->forest->tail != NULL)
+						    tmp =tmp->node->forest->tail ;
+						  tmp->node->forest->tail = mk_forest(false,$2,NULL);
                                                 }
                                                 printf("-----> A contenu Arbre\n");
                                         }
@@ -89,14 +93,20 @@ A_contenu:	        A_contenu Arbre {
                                                 if($$ == NULL){
                                                         $$ = mk_forest(false,$2,NULL);
                                                 }else{
-                                                        $$->node->forest->tail = mk_forest(false,NULL,$2);
+						   struct ast* tmp= $$;
+						  while(tmp->node->forest->tail != NULL)
+						    tmp =tmp->node->forest->tail ;
+						  tmp->node->forest->tail = mk_forest(false,$2,NULL);
                                                 }
                                                }
 		|	A_contenu ',' Quoted_text {printf("-----> A contenu , TEXT\n");
                                                 if($$ == NULL){
                                                         $$ = mk_forest(false,$3,NULL);
                                                 }else{
-                                                        $$->node->forest->tail = mk_forest(false,NULL,$3);
+						    struct ast* tmp= $$;
+						  while(tmp->node->forest->tail != NULL)
+						    tmp =tmp->node->forest->tail ;
+						  tmp->node->forest->tail = mk_forest(false,$3,NULL);
                                                 }
                                                }
 
