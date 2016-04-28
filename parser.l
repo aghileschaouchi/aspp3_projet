@@ -9,7 +9,6 @@ void yyerror(const char*);
 %option noinput nounput yylineno
 
 %x TXT
-%s DECL_LEFT DECL_RIGHT DECL_IN
 				
 NUM [[:digit:]]+		
 ID_CHAR [[:alnum:]_\'\.]
@@ -57,11 +56,12 @@ SPACE [[:space:]]+
 ">"                {return _GE;}
 ">="               {return _GEQ;}
 "=="               {return _EQ;}
+"!="               {return _NEQ;}
 "&&"               {return _AND;}
 "||"               {return _OR;}
 "!"                {return _NOT;}
 {SPACE}            ;
 
-({ID}{SPACE}(\/|\[|\{))|(\]{SPACE}\/) {yyerror("forme illicite"); return ERR;}
+({ID}{SPACE}(\/|\[|\{))|({ID}\[[\]]*\]{SPACE}\/) {yyerror("forme illicite"); return ERR;}
 
 .                  {printf("[%c]", yytext[0]); return ERR;}//caractere non reconnu
