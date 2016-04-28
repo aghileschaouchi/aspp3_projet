@@ -2,7 +2,7 @@ LEX = flex
 YACC = bison -d -v
 LDLIBS = -lfl
 CFLAGS = -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes
-CC = gcc
+CC = gcc -g
 EXEC = parser
 
 $(EXEC): lex.o $(EXEC).tab.o $(EXEC).o pattern.o ast.o machine.o pattern_matching.o import.o main.c

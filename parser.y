@@ -39,7 +39,7 @@ extern void yyerror(const char* s);
 %start Document												
 %%
 
-Document:		Document Arbre {$$ = $2;emit("text.txt", $2); printf("----------------−>Document Arbre<------------------\n");}
+Document:		Document Arbre {$$ = $2;emit("test.txt", $2); printf("----------------−>Document Arbre<------------------\n");}
 		|	{}
 		;
 
@@ -50,7 +50,7 @@ Document:		Document Arbre {$$ = $2;emit("text.txt", $2); printf("---------------
 
 
 Arbre:                  ID Arbre_accol {printf("-----> ID Arbre Arbre_accol \n");
-                                        $$ = mk_forest(false,mk_tree($1, false, false, false, NULL, $2),NULL);
+                                        $$ = mk_tree($1, false, false, false, NULL, $2);
                                        }      
                 |       ID '/' {printf("-----> Arbre ID / \n");
                                 $$ =  mk_forest(false,mk_tree($1, false, false, false, NULL,NULL),NULL);
@@ -77,17 +77,30 @@ Attrs:          	Attrs ID '=' Quoted_text {printf("-----> Creation de l'attribut
 		|	{}
 		;
 
-A_contenu:	        A_contenu Arbre {printf("-----> A contenu Arbre\n");
-                                         $$ = mk_forest(false,NULL,$2);
-                                         }
+A_contenu:	        A_contenu Arbre {
+                                                if($$ == NULL){
+                                                        $$ = mk_forest(false,$2,NULL);
+                                                }else{
+                                                        $$->node->forest->tail = mk_forest(false,NULL,$2);
+                                                }
+                                                printf("-----> A contenu Arbre\n");
+                                        }
 		|	A_contenu Quoted_text {printf("-----> A contenu TEXT\n");
-                                               $$ = $2;
+                                                if($$ == NULL){
+                                                        $$ = mk_forest(false,$2,NULL);
+                                                }else{
+                                                        $$->node->forest->tail = mk_forest(false,NULL,$2);
+                                                }
                                                }
 		|	A_contenu ',' Quoted_text {printf("-----> A contenu , TEXT\n");
-                                               $$ = $3;
+                                                if($$ == NULL){
+                                                        $$ = mk_forest(false,$3,NULL);
+                                                }else{
+                                                        $$->node->forest->tail = mk_forest(false,NULL,$3);
+                                                }
                                                }
 
-		|	{}
+		|	{ $$ = NULL;}
 		;
 
 Quoted_text:            DBL_QUOTES_OPEN TEXT DBL_QUOTES_CLOSE {printf("-----> Creation de TEXT\n");
