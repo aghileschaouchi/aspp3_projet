@@ -19,6 +19,8 @@ extern void yyerror(const char* s);
 %right IN
 %right '='
 
+%token _MATCH _WITH _END
+
 %right IF THEN ELSE
 
 %token NUM
@@ -80,7 +82,26 @@ Expr:			Foret
                 |       '$' Import FLECHE Id_var
                 |       '$' Points Import FLECHE Id_var
                 |       Application
+                |       Filtrage
 		;
+
+Filtrage:               _MATCH Id_var _WITH Filt_body _END
+                ;
+
+Filt_body:              Filt_body '|' Filt_arbre FLECHE Expr
+                |       {}
+                ;
+
+Filt_arbre:             ID '{' Filt_contenu '}'
+                |       '_' '{' Filt_contenu '}'
+                |       '{' Filt_contenu '}'
+                ;
+
+Filt_contenu:           Filt_contenu Filt_arbre
+                |       Filt_contenu ID
+                |       Filt_contenu '_'
+                |       {}
+                ;
 
 Application:            Id_var Func_args
                 |       Parentheses Func_args

@@ -26,8 +26,11 @@ SPACE [[:space:]]+
 "if"               {return IF;}
 "then"             {return THEN;}
 "else"             {return ELSE;}
-{NUM}              {return NUM;}
+"match"            {return _MATCH;}
+"with"             {return _WITH;}
+"end"              {return _END;}
 
+{NUM}              {return NUM;}
 {ID_XML}           {return ID_XML;}
 {ID}               {yylval.string_t = strdup(yytext); return ID;}
 
@@ -37,6 +40,8 @@ SPACE [[:space:]]+
 	\"             {BEGIN INITIAL; return DBL_QUOTES_CLOSE;}
 }
 
+"_"                {return '_';}
+"|"                {return '|';}
 "$"                {return '$';}
 "."                {return '.';}
 "->"               {return FLECHE;}
