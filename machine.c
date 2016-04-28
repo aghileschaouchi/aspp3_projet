@@ -6,11 +6,74 @@
 #include "pattern_matching.h"
 
 void emit(char * file, struct ast * ast) {
-    assert(file != NULL && (ast == NULL || ast != NULL));
-    fprintf(stderr, "Vous devez implémenter la fonction emit");
+
+    FILE * file1 = fopen(file, "a+");
+    parcoursNode(ast, 0, file1);
+    fclose(file1);
+
+//    div{a{"a"} "a" b{b{} "a"} "b"}
     return;
 }
 
+// Parcours noeud
+void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
+    int tab = tabulation;
+    switch (ast->type){
+
+        case TREE:
+            fprintf(file, "<%s", ast->node->tree->label);
+            if(ast->node->tree->attributes != NULL){
+                parcoursAttributs(ast->node->tree->attributes, tab, file);
+                if(ast->node->tree->daughters == NULL)
+                    fprintf(file, "/");
+                fprintf(file, ">");
+            }
+            else{
+                fprintf(file, ">\n");
+                tab ++;
+                putTab(tab, file);
+            }
+
+            if(ast->node->tree->daughters != NULL){
+                parcoursNode(ast->node->tree->daughters, tab, file);
+            }
+            if(ast->node->tree->attributes == NULL){
+                tab --;
+            }
+            fprintf(file, "\n");
+            putTab(tab, file);
+            fprintf(file, "</%s>\n", ast->node->tree->label);
+            putTab(tab, file);
+            break;
+
+        case FOREST:
+            parcoursNode(ast->node->forest->head, tab, file);
+            if(ast->node->forest->tail != NULL)
+                parcoursNode(ast->node->forest->tail, tab, file);
+            break;
+
+        case WORD:
+            fprintf(file, "%s", ast->node->str);
+            break;
+    }
+
+}
+
+void parcoursAttributs(struct attributes * attrib, int tabulation, FILE * file) {
+    fprintf(file, " ");
+    parcoursNode(attrib->key, tabulation, file);
+    fprintf(file, "=\"");
+    parcoursNode(attrib->value, tabulation, file);
+    fprintf(file, "\"");
+    if(attrib->next != NULL)
+        parcoursAttributs(attrib->next, tabulation, file);
+}
+
+void putTab(int tab, FILE * file){
+    for(int i=tab; i!=0; i--){
+        fprintf(file, "  ");
+    }
+}
 struct env * mk_env(char * var, struct closure * value, struct env * next) {
     struct env * res = malloc(sizeof (struct env));
     res->var = var;

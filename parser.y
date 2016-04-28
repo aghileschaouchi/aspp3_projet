@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "machine.h"
 
 extern int yylex(void);
 extern void yyerror(const char* s);
@@ -38,7 +39,7 @@ extern void yyerror(const char* s);
 %start Document												
 %%
 
-Document:		Document Arbre {$$ = $2; printf("----------------−>Document Arbre<------------------\n");}
+Document:		Document Arbre {$$ = $2;emit("text.txt", $2); printf("----------------−>Document Arbre<------------------\n");}
 		|	{}
 		;
 
