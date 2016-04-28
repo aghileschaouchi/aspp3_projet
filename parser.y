@@ -54,13 +54,13 @@ Arbre:                  ID Arbre_accol {printf("-----> ID Arbre Arbre_accol \n")
                                         $$ = mk_tree($1, false, false, false, NULL, $2);
    }     
                 |       ID '/' {printf("-----> Arbre ID / \n");
-                                $$ =  mk_tree($1, false, false, false, NULL,NULL);
+                                $$ =  mk_tree($1, false, true, false, NULL,NULL);
 			}
 		|	ID '[' Attrs ']' Arbre_accol {printf("-----> Arbre Attributes Arbre_accol\n");
-                                                      $$ =  mk_tree($1, false, false, false, $3,$5);
+                                                      $$ =  mk_tree($1, false, false , false, $3,$5);
 			                              }
 		|       ID '[' Attrs ']' '/' {printf("-----> Arbre Attributes \n");
-                                              $$ =  mk_tree($1, false, true, false, $3, NULL);
+                                              $$ =  mk_tree($1, false, false, false,$3, NULL);
 			                      }
                 |       Arbre_accol {printf("-----> Arbre Arbre_accol \n");
                                      $$ =  $1;
@@ -74,7 +74,13 @@ Arbre_accol:            '{' A_contenu '}' {printf("-----> Arbe_accol A contenu\n
 		;
 
 Attrs:          	Attrs ID '=' Quoted_text {printf("-----> Creation de l'attribut \n");
-                                                 $$ = make_attribute($2,$4);}
+                                                  if($1 == NULL) {
+                                                    $$ = make_attribute(mk_word($2),$4);
+                                                  }else{
+						    $1->next = make_attribute(mk_word($2),$4);
+						    $$ = $1;
+						  }
+                                                  }
 		|	{}
 		;
 

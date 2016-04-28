@@ -18,23 +18,28 @@ void emit(char * file, struct ast * ast) {
 // Parcours noeud
 void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
     int tab = tabulation;
-    //~ if(ast != NULL){
     switch (ast->type){
 
         case TREE:
             fprintf(file, "<%s", ast->node->tree->label);
+            
+            if(ast->node->tree->nullary){//le cas de br/ 
+				fprintf(file, "/>\n");
+				break;
+			}
+				
             if(ast->node->tree->attributes != NULL){
                 parcoursAttributs(ast->node->tree->attributes, tab, file);
                 if(ast->node->tree->daughters == NULL)
-                    fprintf(file, "/");
-                fprintf(file, ">");
+                    fprintf(file, "/");//elle ajoute un "/" a la fa
+					fprintf(file, ">");
             }
             else{
                 fprintf(file, ">\n");
                 tab ++;
                 putTab(tab, file);
             }
-
+			
             if(ast->node->tree->daughters != NULL){
                 parcoursNode(ast->node->tree->daughters, tab, file);
             }
@@ -57,7 +62,6 @@ void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
             fprintf(file, "%s", ast->node->str);
             break;
     }
-//~ }
 
 }
 
