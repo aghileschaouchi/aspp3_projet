@@ -7,6 +7,8 @@
 - let x = 2 in z where z = x+2; (ok)
 - parentheses (ok)
 - if then else (ok)
+- comparaison (geq, eq, leq,...) OK
+- fonction ? fonction récursive (OK, a tester)
 
-- fonction ? fonction récursive
 - match ?
+- unary minus (-1, -3...)

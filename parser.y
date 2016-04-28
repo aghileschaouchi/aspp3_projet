@@ -17,14 +17,18 @@ extern void yyerror(const char* s);
 %right IN
 %right '='
 
-%left _GEQ _GE _LEQ _LE _EQ _OR _AND _NOT
-%left NUM
+%token NUM
+%left _NOT
+%left _OR _AND
+%left _GEQ _GE _LEQ _LE _EQ _NEQ
 %left '+' '-'
 %left '*' '/'
-%right '('
-%left ')'
+%left _NEG
+%left ')' '('
 
 %right IF THEN ELSE
+
+%left '{' '}'
 
 %token	<string_t>		TEXT
 %union {
@@ -35,7 +39,7 @@ extern void yyerror(const char* s);
 
 Document:		Document Arbre
                 |       Document Foret
-                |       Document LET Id_var '=' Expr ';'
+                |       Document Let_rec Decl ';'
 		|	Document Expr ';'
 		|	{}
 		;
@@ -49,17 +53,39 @@ Id_var:			ID | ID_XML
 
 Expr:			Foret
                 |       Arbre
+                |       Quoted_text
                 |       NUM
-                |       Id_var
+                |       Args /*var ou sequence de vars*/
                 |       Parentheses
                 |       Add
                 |       Sub
                 |       Mult
                 |       Div
+                |       Geq
+                |       Ge
+                |       Leq
+                |       Le
+                |       Eq
+                |       Neq
+                |       Or
+                |       And
+                |       Not
                 |       If_then
-                |       LET Id_var '=' Expr IN Expr
-                |       Expr WHERE Id_var '=' Expr
+                |       Let_rec Decl IN Expr
+                |       Expr WHERE Decl
+                |       _FUN Args FLECHE Expr
 		;
+
+Let_rec:                LET | LET REC
+                ;
+
+Decl:                   Id_var '=' Expr
+                |       Id_var Args '=' Expr
+                ;
+
+Args:                   Args Id_var
+                |       Id_var
+                ;
 
 Parentheses:            '(' Expr ')'
                 ;
@@ -76,6 +102,33 @@ Mult:                   Expr '*' Expr
 Div:                    Expr '/' Expr
                 ;
 
+Geq:                    Expr _GEQ Expr
+                ;
+
+Ge:                     Expr _GE Expr
+                ;
+
+Leq:                    Expr _LEQ Expr
+                ;
+
+Le:                     Expr _LE Expr
+                ;
+
+Eq:                     Expr _EQ Expr
+                ;
+
+Neq:                    Expr _NEQ Expr
+                ;
+
+Or:                     Expr _OR Expr
+                ;
+
+And:                    Expr _AND Expr
+                ;
+
+Not:                    Expr _NOT Expr
+                ;
+
 If_then:                IF Expr THEN Expr ELSE Expr
                 ;
 
@@ -83,34 +136,24 @@ If_then:                IF Expr THEN Expr ELSE Expr
  * Foret & Arbre
  */
 
-Foret:                  '{' F_contenu '}'
-		|	'{' F_contenu Id_var '}'
-		;
-
-F_contenu:		F_contenu Foret
-                |       F_contenu Arbre
-		|	F_contenu Id_var ','
-		|	{}
-		;
-
-Arbre:                  ID Arbre_accol
+Arbre:                  ID Foret
                 |       ID '/'
-                |	ID '[' Attrs ']' Arbre_accol
+                |	ID '[' Attrs ']' Foret
 		|       ID '[' Attrs ']' '/'
 		;
 
-Arbre_accol:            '{' A_contenu '}'
-		|	'{' A_contenu Id_var '}'
+Foret:                  '{' '}'
+                |       '{' A_contenu
+		;
+
+A_contenu:		Foret A_contenu
+                |       Arbre A_contenu 
+		|	Quoted_text A_contenu 
+		|	Expr ',' A_contenu 
+		|	Expr '}'
 		;
 
 Attrs:          	Attrs ID '=' Quoted_text
-		|	{}
-		;
-
-A_contenu:		A_contenu Foret
-                |       A_contenu Arbre
-		|	A_contenu Quoted_text
-		|	A_contenu Id_var ','
 		|	{}
 		;
 
