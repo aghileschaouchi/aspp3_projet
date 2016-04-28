@@ -11,11 +11,15 @@ extern void yyerror(const char* s);
 %token ERR DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
 %left   <string_t>  ID ID_XML
 
+%left '{' '}'
+
 %token REC
 %right FLECHE LET _FUN
 %right WHERE
 %right IN
 %right '='
+
+%right IF THEN ELSE
 
 %token NUM
 %left _NOT
@@ -26,10 +30,6 @@ extern void yyerror(const char* s);
 %left _NEG
 %left ')' '('
 
-%right IF THEN ELSE
-
-%left '{' '}'
-
 %token	<string_t>		TEXT
 %union {
 	char* string_t;
@@ -39,7 +39,8 @@ extern void yyerror(const char* s);
 
 Document:		Document Arbre
                 |       Document Foret
-                |       Document Let_rec Decl ';'
+                |       Document LET Decl ';'
+                |       Document LET REC Decl ';'
 		|	Document Expr ';'
 		|	{}
 		;
@@ -55,7 +56,7 @@ Expr:			Foret
                 |       Arbre
                 |       Quoted_text
                 |       NUM
-                |       Args /*var ou sequence de vars*/
+                |       Id_var
                 |       Parentheses
                 |       Add
                 |       Sub
@@ -71,12 +72,40 @@ Expr:			Foret
                 |       And
                 |       Not
                 |       If_then
-                |       Let_rec Decl IN Expr
+                |       LET Decl IN Expr
+                |       LET REC Decl IN Expr
                 |       Expr WHERE Decl
+                |       Expr WHERE REC Decl
                 |       _FUN Args FLECHE Expr
+                |       '$' Import FLECHE Id_var
+                |       '$' Points Import FLECHE Id_var
+                |       Application
 		;
 
-Let_rec:                LET | LET REC
+Application:            Id_var Func_args
+                |       Parentheses Func_args
+                ;       
+
+Func_args:              Func_args Foret
+                |       Func_args Arbre
+                |       Func_args Quoted_text
+                |       Func_args NUM
+                |       Func_args Id_var
+                |       Func_args Parentheses
+                |       Foret
+                |       Arbre
+                |       Quoted_text
+                |       NUM
+                |       Id_var
+                |       Parentheses
+                ;
+
+Import:                 Import '/' Id_var
+                |       Id_var
+                ;
+
+Points:                 '.' Points
+                |       '/'
                 ;
 
 Decl:                   Id_var '=' Expr

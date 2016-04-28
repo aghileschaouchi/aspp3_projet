@@ -37,6 +37,8 @@ SPACE [[:space:]]+
 	\"             {BEGIN INITIAL; return DBL_QUOTES_CLOSE;}
 }
 
+"$"                {return '$';}
+"."                {return '.';}
 "->"               {return FLECHE;}
 "["                {return '[';}
 "]"                {return ']';}
