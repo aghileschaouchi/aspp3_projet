@@ -3,6 +3,7 @@
 
 #include "pattern_matching.h"
 #include "import.h"
+#include "ast.h"
 
 #define YY_BUF_SIZE 16384
 

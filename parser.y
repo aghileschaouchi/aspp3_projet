@@ -1,16 +1,10 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
-
+#include "parser.h"
+#include "import.h"
 extern int yylex(void);
 extern void yyerror(const char* s);
-
-struct ast * current_var = NULL;
-struct ast * current_binop = NULL;
-struct ast * current_unaryop = NULL;
-struct ast * current_integer = NULL;
-struct ast * current_decl = NULL;
-struct ast * current_expr= NULL;
 
 %}
 %define parse.error verbose
@@ -36,7 +30,7 @@ struct ast * current_expr= NULL;
 %token	<string_t>		TEXT
 
 %type <string_t> Id_var
-%type <ast_t> Document Foret Arbre Expr Parentheses Add Sub Mult Div If_then
+%type <ast_t> Document Foret Arbre Expr Parentheses Add Sub Mult Div If_then F_contenu
 
 %union {
 	char* string_t;
@@ -46,10 +40,15 @@ struct ast * current_expr= NULL;
 %start Document												
 %%
 
-Document:		Document Arbre {$$ = $2;}
-                |       Document Foret {$$ = $2;}
-                |       Document LET Id_var '=' Expr ';' {/*current_var = mk_var($2);*/}
-		|	Document Expr ';' {/*current_var = mk_var($2); current_decl = mk_declrec($2, current_expr);*/}
+Document:		Document Arbre {}
+                |       Document Foret {}
+                |       Document LET Id_var '=' Expr ';' {$$=mk_var($3);
+                                                          struct env * e = initial_env;
+                                                          e = process_binding_instruction($3, $5, e);
+                                                          struct closure * my_closure = mk_closure($5, e);
+                                                          push_env($3, my_closure, &e);    
+                                                                }
+		|	Document Expr ';' {}
 		|	{}
 		;
 
@@ -64,33 +63,43 @@ Id_var:			ID {$$ = $1;}
 Expr:			Foret                                       {$$ = $1;}
                 |       Arbre                                       {$$ = $1;}
                 |       NUM                                         {$$ = mk_integer($1);printf("m_num : %d\n", $$-> node -> num);}
-                |       Id_var                                      {/*$$ = (struct ast*)$1;*/}
+                |       Id_var                                      {$$ = $1;}
                 |       Parentheses                                 {$$ = $1;}
                 |       Add                                         {$$ = $1;}
                 |       Sub                                         {$$ = $1;}
                 |       Mult                                        {$$ = $1;}
                 |       Div                                         {$$ = $1;}
-                |       If_then
-                |       LET Id_var '=' Expr IN Expr                 {$$ = mk_app(mk_fun($2, $4), $6);}
-                |       Expr WHERE Id_var '=' Expr                  {$$ = mk_app(mk_fun($3, $5), $1);}
+                |       If_then                                     {$$ = $1;}
+                |       LET Id_var '=' Expr IN Expr                 {/*$$ = mk_app(mk_fun($2, $4), $6);*/
+                                                                       $$ = mk_app(mk_fun($2, $6), $4); }
+                |       Expr WHERE Id_var '=' Expr                  {/*$$ = mk_app(mk_fun($3, $5), $1);*/
+                                                                       $$ = mk_app(mk_fun($3, $1), $5); }
 		;
 
 Parentheses:            '(' Expr ')'  {$$ = $2;}
                 ;
 
-Add:                    Expr '+' Expr { $$ = mk_app(mk_app($1, $3), mk_binop(PLUS));}
+Add:                    Expr '+' Expr { /*$$ = mk_app(mk_app($1, $3), mk_binop(PLUS));*/
+                                        $$ = mk_app(mk_app(mk_binop(PLUS), $1), $3);
+                                        }
                 ;
 
-Sub:                    Expr '-' Expr { $$ = mk_app(mk_app($1, $3), mk_binop(MINUS));}
+Sub:                    Expr '-' Expr { /*$$ = mk_app(mk_app($1, $3), mk_binop(MINUS));*/
+                                        $$ = mk_app(mk_app(mk_binop(MINUS), $1), $3);
+                                        }
                 ;
 
-Mult:                   Expr '*' Expr { $$ = mk_app(mk_app($1, $3), mk_binop(MULT));}
+Mult:                   Expr '*' Expr { /*$$ = mk_app(mk_app($1, $3), mk_binop(MULT));*/
+                                        $$ = mk_app(mk_app(mk_binop(MULT), $1), $3);
+                                        }
                 ;
 
-Div:                    Expr '/' Expr { $$ = mk_app(mk_app($1, $3), mk_binop(DIV));}
+Div:                    Expr '/' Expr { /*$$ = mk_app(mk_app($1, $3), mk_binop(DIV));*/
+                                        $$ = mk_app(mk_app(mk_binop(DIV), $1), $3);
+                                        }
                 ;
 
-If_then:                IF Expr THEN Expr ELSE Expr
+If_then:                IF Expr THEN Expr ELSE Expr {$$ = mk_cond($2, $4, $6);}
                 ;
 
 /***
