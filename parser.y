@@ -39,7 +39,7 @@ extern void yyerror(const char* s);
 %start Document												
 %%
 
-Document:		Document Arbre {$$ = $2;emit("test.txt", $2); printf("----------------−>Document Arbre<------------------\n");}
+Document:		Document Arbre {$$ = $2;emit("test.html", $2); printf("----------------−>Document Arbre<------------------\n");}
 		|	{}
 		;
 

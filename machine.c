@@ -7,7 +7,7 @@
 
 void emit(char * file, struct ast * ast) {
 
-    FILE * file1 = fopen(file, "a+");
+    FILE * file1 = fopen(file, "w");
     parcoursNode(ast, 0, file1);
     fclose(file1);
 
