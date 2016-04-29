@@ -10,4 +10,12 @@ img[
 	alt="My Image"	
 ]/
 
+div{
+"this" 
+is, 
+"a " 
+concat, 
+	a{what}
+	}
+
 {div{"hehe" a[href="http://google.com"alt="hehe"]{"huhu"}{}{h1{"kaka"}}}}

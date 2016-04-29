@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "parser.h"
-#include "import.h"
+
 extern int yylex(void);
 extern void yyerror(const char* s);
 
@@ -10,7 +10,9 @@ extern void yyerror(const char* s);
 %define parse.error verbose
 
 %token ERR DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
-%left   <string_t>  ID ID_XML
+%left   <string_t>  ID ID_XML ID_SLASH ID_ACCOL ID_CROC
+
+%left '{' '}'
 
 %token REC
 %right FLECHE LET _FUN
@@ -18,8 +20,13 @@ extern void yyerror(const char* s);
 %right IN
 %right '='
 
+%token _MATCH _WITH _END
+%token UNDERSCORE UNDERSCORE_SPACE SLASH_ID_SLASH SLASH_UNDERSCORE_SLASH
+
+%right IF THEN ELSE
+
 %token NUM
-%left _NOT
+%right _NOT
 %left _OR _AND
 %left _GEQ _GE _LEQ _LE _EQ _NEQ
 %left '+' '-'
@@ -27,14 +34,12 @@ extern void yyerror(const char* s);
 %left _NEG
 %left ')' '('
 
-%right IF THEN ELSE
-
-%left '{' '}'
+%right APP_FUNC
 
 %token	<string_t>		TEXT
 
 %type <string_t> Id_var Args Args_rec
-%type <ast_t> Document Foret Arbre Expr Parentheses Add Sub Mult Div If_then F_contenu Geq Ge Leq Le Eq Neq Or And Not
+%type <ast_t> Document Foret Arbre Expr Parentheses Add Sub Mult Div If_then Geq Ge Leq Le Eq Neq Or And Not
 %type <int_t> NUM
 %union {
 	char* string_t;
@@ -73,7 +78,6 @@ Document:		Document Arbre {}
                                                            struct closure * my_closure = mk_closure($7, e);
                                                            push_env($4, my_closure, &e);
                                                                 }
-                |       Document {} 
 		|	Document Expr ';' {}
 		|	{}
 		;
@@ -111,7 +115,61 @@ Expr:			Foret {$$ = $1;}
                 |       Expr WHERE Id_var '=' Expr {$$ = mk_app(mk_fun($3, $1), $5);}
                 |       Expr WHERE REC Id_var '=' Expr {$$ = mk_app(mk_fun($4, $1), mk_declrec($4, $6));}
                 |       _FUN Args FLECHE Expr {}
+                |       '$' Import FLECHE Id_var
+                |       '$' Points Import FLECHE Id_var
+                |       Application %prec APP_FUNC
+                |       Filtrage
 		;
+
+Filtrage:               _MATCH Expr _WITH Filt_body _END
+                ;
+
+Filt_body:              '|' Filt_arbre FLECHE Expr Filt_body
+                |       '|' UNDERSCORE FLECHE Expr Filt_body
+                |       {}
+                ;
+
+Filt_arbre:             ID_ACCOL Filt_contenu '}'
+                |       UNDERSCORE '{' Filt_contenu '}'
+                |       '{' Filt_contenu '}'
+                |       UNDERSCORE_SPACE
+                ;
+
+Filt_contenu:           Id_var Filt_contenu
+                |       Filt_arbre Filt_contenu
+                |       '*' UNDERSCORE '*' Filt_contenu
+                |       SLASH_UNDERSCORE_SLASH Filt_contenu
+                |       '*' Id_var '*' Filt_contenu
+                |       SLASH_ID_SLASH Filt_contenu
+                |       UNDERSCORE
+                |       {}
+                ;
+
+Application:            Id_var Func_args
+                |       Parentheses Func_args
+                ;       
+
+Func_args:              Func_args Foret
+                |       Func_args Arbre
+                |       Func_args Quoted_text
+                |       Func_args NUM
+                |       Func_args Id_var
+                |       Func_args Parentheses
+                |       Foret
+                |       Arbre
+                |       Quoted_text
+                |       NUM
+                |       Id_var
+                |       Parentheses
+                ;
+
+Import:                 Import '/' Id_var
+                |       Id_var
+                ;
+
+Points:                 '.' Points
+                |       '/'
+                ;
 
 Args:                   Args Id_var {/*Je n'en suis pas sur*/ $$ = mk_fun($1, $2);}
                 |       Id_var {$$ = $1;}
@@ -170,10 +228,11 @@ If_then:                IF Expr THEN Expr ELSE Expr {$$ = mk_cond($2, $4, $6);}
  * Foret & Arbre
  */
 
-Arbre:                  ID Foret
-                |       ID '/'
-                |	ID '[' Attrs ']' Foret
-		|       ID '[' Attrs ']' '/'
+Arbre:                  ID_ACCOL '}'
+                |       ID_ACCOL A_contenu
+                |       ID_SLASH
+                |	ID_CROC Attrs ']' Foret
+		|       ID_CROC Attrs ']' '/'
 		;
 
 Foret:                  '{' '}'
@@ -191,5 +250,5 @@ Attrs:          	Attrs ID '=' Quoted_text
 		|	{}
 		;
 
-Quoted_text:            DBL_QUOTES_OPEN TEXT DBL_QUOTES_CLOSE {}
+Quoted_text:            DBL_QUOTES_OPEN TEXT DBL_QUOTES_CLOSE
 		;
