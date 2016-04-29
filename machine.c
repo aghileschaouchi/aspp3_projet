@@ -21,35 +21,43 @@ void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
     switch (ast->type){
 
         case TREE:
+
             fprintf(file, "<%s", ast->node->tree->label);
             
-            if(ast->node->tree->nullary){//le cas de br/ 
-				fprintf(file, "/>\n");
-				break;
-			}
-				
+            // Pour une balise vide de comme br/ 
+            if(ast->node->tree->nullary){
+                fprintf(file, "/>\n");
+                break;
+            }
+                
+            // Si la balise a des variables, on les écrit 
             if(ast->node->tree->attributes != NULL){
                 parcoursAttributs(ast->node->tree->attributes, tab, file);
-                if(ast->node->tree->daughters == NULL)
-                    fprintf(file, "/");//elle ajoute un "/" a la fa
-					fprintf(file, ">");
+                // Si elle n'a pas de text derrière, on rajoute un / 
+                if(ast->node->tree->daughters == NULL){
+                    fprintf(file, "/>");
+                }
+                else{
+                    fprintf(file, ">");
+                }
             }
             else{
                 fprintf(file, ">\n");
                 tab ++;
                 putTab(tab, file);
             }
-			
+            
+            // On écrit tout ce qu'il y a entre les balises 
             if(ast->node->tree->daughters != NULL){
                 parcoursNode(ast->node->tree->daughters, tab, file);
             }
             if(ast->node->tree->attributes == NULL){
                 tab --;
             }
-            fprintf(file, "\n");
-            putTab(tab, file);
-            fprintf(file, "</%s>\n", ast->node->tree->label);
-            putTab(tab, file);
+            if(ast->node->tree->attributes == NULL || ast->node->tree->daughters != NULL){
+                fprintf(file, "</%s>\n", ast->node->tree->label);
+                putTab(tab, file);
+            }
             break;
 
         case FOREST:
@@ -80,6 +88,7 @@ void putTab(int tab, FILE * file){
         fprintf(file, "  ");
     }
 }
+
 struct env * mk_env(char * var, struct closure * value, struct env * next) {
     struct env * res = malloc(sizeof (struct env));
     res->var = var;
