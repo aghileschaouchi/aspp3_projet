@@ -1,7 +1,6 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
-#include "parser.h"
 
 extern int yylex(void);
 extern void yyerror(const char* s);
@@ -37,48 +36,17 @@ extern void yyerror(const char* s);
 %right APP_FUNC
 
 %token	<string_t>		TEXT
-
-%type <string_t> Id_var Args Args_rec
-%type <ast_t> Document Foret Arbre Expr Parentheses Add Sub Mult Div If_then Geq Ge Leq Le Eq Neq Or And Not
-%type <int_t> NUM
 %union {
 	char* string_t;
-        struct ast * ast_t;
-        int int_t;
 }
 %start Document												
 %%
 
-Document:		Document Arbre {}
-                |       Document Foret {}
-                |       Document LET Id_var '=' Expr ';' {
-                                                          $$=mk_var($3);
-                                                          struct env * e = initial_env;
-                                                          e = process_binding_instruction($3, $5, e);
-                                                          struct closure * my_closure = mk_closure($5, e);
-                                                          push_env($3, my_closure, &e);}
-                |       Document LET Id_var Args '=' Expr ';' {/*fonction avec arguments*/
-                                                          $$ = mk_fun($4, $6);
-                                                          struct env * e = initial_env;
-                                                          e = process_binding_instruction($3, $6, e);
-                                                          struct closure * my_closure = mk_closure($6, e);
-                                                          push_env($3, my_closure, &e);
-                                                                }
-                |       Document LET REC Id_var '=' Expr ';' {/*fonction recursive*/
-                                                           $$ = mk_declrec($4, $6);
-                                                           struct env * e = initial_env;
-                                                           e = process_binding_instruction($4, $6, e);
-                                                           struct closure * my_closure = mk_closure($6, e);
-                                                           push_env($4, my_closure, &e);
-                                                                }
-                |       Document LET REC Id_var Args_rec '=' Expr ';' {/*fonction recursive avec arguments*/
-                                                           $$ = mk_declrec($5, $7); 
-                                                           struct env * e = initial_env;
-                                                           e = process_binding_instruction($4, $7, e);
-                                                           struct closure * my_closure = mk_closure($7, e);
-                                                           push_env($4, my_closure, &e);
-                                                                }
-		|	Document Expr ';' {}
+Document:		Document Arbre
+                |       Document Foret
+                |       Document LET Decl ';'
+                |       Document LET REC Decl ';'
+		|	Document Expr ';'
 		|	{}
 		;
 
@@ -86,35 +54,34 @@ Document:		Document Arbre {}
  * Variables & Expressions
  */
 
-Id_var:			ID {$$ = $1;}
-                |       ID_XML {$$ = $1;}
+Id_var:			ID | ID_XML
 		;
 
-Expr:			Foret {$$ = $1;}
-                |       Arbre {$$ = $1;}
-                |       Quoted_text {/*$$ = $1;*/}
-                |       NUM {$$ = mk_integer($1);printf("m_num : %d\n", $$-> node -> num);}
-                |       Args /*var ou sequence de vars*/ {$$ = $1;}
-                |       Parentheses {$$ = $1;}
-                |       Add {$$ = $1;}
-                |       Sub {$$ = $1;}
-                |       Mult {$$ = $1;}
-                |       Div {$$ = $1;}
-                |       Geq {$$ = $1;}
-                |       Ge {$$ = $1;}
-                |       Leq {$$ = $1;}
-                |       Le {$$ = $1;}
-                |       Eq {$$ = $1;}
-                |       Neq {$$ = $1;}
-                |       Or {$$ = $1;}
-                |       And {$$ = $1;}
-                |       Not {$$ = $1;}
-                |       If_then {$$ = $1;}
-                |       LET Id_var '=' Expr IN Expr {$$ = mk_app(mk_fun($2, $6), $4);}
-                |       LET REC Id_var '=' Expr IN Expr {$$ = mk_app(mk_fun($3, $7), mk_declrec($3, $5));}
-                |       Expr WHERE Id_var '=' Expr {$$ = mk_app(mk_fun($3, $1), $5);}
-                |       Expr WHERE REC Id_var '=' Expr {$$ = mk_app(mk_fun($4, $1), mk_declrec($4, $6));}
-                |       _FUN Args FLECHE Expr {}
+Expr:			Foret
+                |       Arbre
+                |       Quoted_text
+                |       NUM
+                |       Id_var
+                |       Parentheses
+                |       Add
+                |       Sub
+                |       Mult
+                |       Div
+                |       Geq
+                |       Ge
+                |       Leq
+                |       Le
+                |       Eq
+                |       Neq
+                |       Or
+                |       And
+                |       Not
+                |       If_then
+                |       LET Decl IN Expr
+                |       LET REC Decl IN Expr
+                |       Expr WHERE Decl
+                |       Expr WHERE REC Decl
+                |       _FUN Args FLECHE Expr
                 |       '$' Import FLECHE Id_var
                 |       '$' Points Import FLECHE Id_var
                 |       Application %prec APP_FUNC
@@ -171,57 +138,57 @@ Points:                 '.' Points
                 |       '/'
                 ;
 
-Args:                   Args Id_var {/*Je n'en suis pas sur*/ $$ = mk_fun($1, $2);}
-                |       Id_var {$$ = $1;}
+Decl:                   Id_var '=' Expr
+                |       Id_var Args '=' Expr
                 ;
 
-Args_rec:               Args_rec Id_var {/*Je n'en suis pas sur*/ $$ = mk_declrec($1, $2);}
-                |       Id_var {$$ = $1;}
+Args:                   Args Id_var
+                |       Id_var
                 ;
 
-Parentheses:            '(' Expr ')' {$$ = $2;}
+Parentheses:            '(' Expr ')'
                 ;
 
-Add:                    Expr '+' Expr {$$ = mk_app(mk_app(mk_binop(PLUS), $1), $3);}
+Add:                    Expr '+' Expr
                 ;
 
-Sub:                    Expr '-' Expr {$$ = mk_app(mk_app(mk_binop(MINUS), $1), $3);}
+Sub:                    Expr '-' Expr
                 ;
 
-Mult:                   Expr '*' Expr {$$ = mk_app(mk_app(mk_binop(MULT), $1), $3);}
+Mult:                   Expr '*' Expr
                 ;
 
-Div:                    Expr '/' Expr {$$ = mk_app(mk_app(mk_binop(DIV), $1), $3);}
+Div:                    Expr '/' Expr
                 ;
 
-Geq:                    Expr _GEQ Expr {$$ = mk_app(mk_app(mk_binop(GEQ), $1), $3);}
+Geq:                    Expr _GEQ Expr
                 ;
 
-Ge:                     Expr _GE Expr {$$ = mk_app(mk_app(mk_binop(GE), $1), $3);}
+Ge:                     Expr _GE Expr
                 ;
 
-Leq:                    Expr _LEQ Expr {$$ = mk_app(mk_app(mk_binop(LEQ), $1), $3);} 
+Leq:                    Expr _LEQ Expr
                 ;
 
-Le:                     Expr _LE Expr {$$ = mk_app(mk_app(mk_binop(LE), $1), $3);}
+Le:                     Expr _LE Expr
                 ;
 
-Eq:                     Expr _EQ Expr {$$ = mk_app(mk_app(mk_binop(EQ), $1), $3);}
+Eq:                     Expr _EQ Expr
                 ;
 
-Neq:                    Expr _NEQ Expr {$$ = mk_app(mk_app(mk_binop(NEQ), $1), $3);}
+Neq:                    Expr _NEQ Expr
                 ;
 
-Or:                     Expr _OR Expr {$$ = mk_app(mk_app(mk_binop(OR), $1), $3);}
+Or:                     Expr _OR Expr
                 ;
 
-And:                    Expr _AND Expr {$$ = mk_app(mk_app(mk_binop(AND), $1), $3);}
+And:                    Expr _AND Expr
                 ;
 
-Not:                    Expr _NOT Expr {$$ = mk_app(mk_app(mk_unaryop(NOT), $1), $3);}
+Not:                    _NOT Expr
                 ;
 
-If_then:                IF Expr THEN Expr ELSE Expr {$$ = mk_cond($2, $4, $6);}
+If_then:                IF Expr THEN Expr ELSE Expr
                 ;
 
 /***

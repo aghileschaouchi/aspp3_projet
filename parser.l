@@ -4,6 +4,7 @@
 #include "parser.tab.h"
 
 void yyerror(const char*);
+int is_xml(const char* yytext, int yyleng);
 %}
 
 %option noinput nounput yylineno
@@ -39,10 +40,12 @@ SPACE [[:space:]]+
                         return SLASH_ID_SLASH;
                    }
 
-{NUM}              {yylval.int_t = atoi(yytext); return NUM;}
+{NUM}              {return NUM;}
 {ID_XML}           {return ID_XML;}
 {ID}               {yylval.string_t = strdup(yytext); return ID;}
-{ID}(\{|\/|\[)     {yylval.string_t = malloc(sizeof(char)*yyleng);
+{ID}(\{|\/|\[)     {if (is_xml(yytext, yyleng))
+                        return ERR; //XML{}
+                    yylval.string_t = malloc(sizeof(char)*yyleng);
                     strncpy(yylval.string_t, yytext, yyleng-1);
                     yylval.string_t[yyleng-1] = '\0';
                     if (yytext[yyleng-1] == '{')
@@ -89,6 +92,16 @@ SPACE [[:space:]]+
 "!"                {return _NOT;}
 {SPACE}            ;
 
-{ID}\[[\]]*\]{SPACE}\/ {yyerror(yytext); return ERR;}
+{ID}\[[^\]]*\]{SPACE}\/ {yyerror(yytext); return ERR;}
 
 .                  {printf("[%c]", yytext[0]); return ERR;}//caractere non reconnu
+
+%%
+
+int is_xml(const char* text, int leng) {
+    return leng >= 3 &&
+            (text[0] == 'x' || text[0] == 'X') &&
+            (text[1] == 'm' || text[1] == 'M') &&
+            (text[2] == 'l' || text[2] == 'L');
+        
+}
