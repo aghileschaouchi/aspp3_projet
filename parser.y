@@ -29,7 +29,7 @@ extern void yyerror(const char* s);
 %right IF THEN ELSE
 
 %token	<string_t>		TEXT
-%type <ast_t> Document Expr Arbre Arbre_accol A_contenu  Quoted_text 
+%type <ast_t> Document Arbre Arbre_accol A_contenu  Quoted_text 
 %type <attributes_t> Attrs
 %union {
 	struct attributes* attributes_t;
@@ -52,7 +52,7 @@ Document:		Document Arbre {$$ = $2;emit("test.txt", $2); printf("---------------
 Arbre:                  ID Arbre_accol {printf("-----> ID Arbre Arbre_accol \n");
    
                                         $$ = mk_tree($1, false, false, false, NULL, $2);
-   }     
+                                        }     
                 |       ID '/' {printf("-----> Arbre ID / \n");
                                 $$ =  mk_tree($1, false, true, false, NULL,NULL);
 			}
@@ -74,47 +74,50 @@ Arbre_accol:            '{' A_contenu '}' {printf("-----> Arbe_accol A contenu\n
 		;
 
 Attrs:          	Attrs ID '=' Quoted_text {printf("-----> Creation de l'attribut \n");
-                                                  if($1 == NULL) {
+                                                  if($$ == NULL) {
                                                     $$ = make_attribute(mk_word($2),$4);
                                                   }else{
-						    $1->next = make_attribute(mk_word($2),$4);
-						    $$ = $1;
-						  }
+						    struct attributes *tmp = $$;
+						    while(tmp->next != NULL)
+						      tmp = tmp->next;
+						    tmp->next = make_attribute(mk_word($2),$4);
+						    
+						       }
                                                   }
-		|	{}
+                |	{$$ = NULL;}
 		;
 
-A_contenu:	        A_contenu Arbre {
+A_contenu:	        A_contenu Arbre { printf("-----> A contenu Arbre\n");
+                                          if($$ == NULL){
+                                            $$ = mk_forest(false,$2,NULL);
+                                          }else{
+					    struct ast* tmp= $$;
+					    while(tmp->node->forest->tail != NULL)
+					       tmp =tmp->node->forest->tail ;
+					    tmp->node->forest->tail = mk_forest(false,$2,NULL);
+                                                }   
+                                        }
+
+		|	A_contenu Quoted_text {printf("-----> A contenu TEXT\n");
                                                 if($$ == NULL){
-                                                        $$ = mk_forest(false,$2,NULL);
+                                                  $$ = mk_forest(false,$2,NULL);
                                                 }else{
 						  struct ast* tmp= $$;
 						  while(tmp->node->forest->tail != NULL)
 						    tmp =tmp->node->forest->tail ;
 						  tmp->node->forest->tail = mk_forest(false,$2,NULL);
                                                 }
-                                                printf("-----> A contenu Arbre\n");
-                                        }
-		|	A_contenu Quoted_text {printf("-----> A contenu TEXT\n");
-                                                if($$ == NULL){
-                                                        $$ = mk_forest(false,$2,NULL);
-                                                }else{
-						   struct ast* tmp= $$;
-						  while(tmp->node->forest->tail != NULL)
-						    tmp =tmp->node->forest->tail ;
-						  tmp->node->forest->tail = mk_forest(false,$2,NULL);
-                                                }
                                                }
-		|	A_contenu ',' Quoted_text {printf("-----> A contenu , TEXT\n");
-                                                if($$ == NULL){
-                                                        $$ = mk_forest(false,$3,NULL);
-                                                }else{
-						    struct ast* tmp= $$;
-						  while(tmp->node->forest->tail != NULL)
-						    tmp =tmp->node->forest->tail ;
-						  tmp->node->forest->tail = mk_forest(false,$3,NULL);
-                                                }
-                                               }
+		|	A_contenu ',' Quoted_text {  printf("-----> A contenu , TEXT\n");
+                                                     if($$ == NULL){
+                                                       $$ = mk_forest(false,$3,NULL);
+                                                     }else{
+						       struct ast* tmp= $$;
+						       while(tmp->node->forest->tail != NULL)
+						         tmp =tmp->node->forest->tail ;
+						       tmp->node->forest->tail = mk_forest(false,$3,NULL);
+                                                     }
+                                                   }
 
 		|	{ $$ = NULL;}
 		;
