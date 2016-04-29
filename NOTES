@@ -1,4 +1,12 @@
 - mots-clefs réservés (let, in, where) NE PEUVENT etre utilisé comme nom du noeud eg. let{}, in{}, where{} et nom d'attributs eg. img[let="some value"]/
+- pour les args des fonctions: ils doivent être une expression unie (soit parenthésée, soit arbre, num, foret...)
+- Probleme:
+
+if a then b else {} : cela viole la règle ID{}
+
+match exp with
+| {a /b/} -> e
+end //cela viole la regle ID/
 
 ****A faire:
 

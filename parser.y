@@ -9,7 +9,7 @@ extern void yyerror(const char* s);
 %define parse.error verbose
 
 %token ERR DBL_QUOTES_CLOSE DBL_QUOTES_OPEN
-%left   <string_t>  ID ID_XML
+%left   <string_t>  ID ID_XML ID_SLASH ID_ACCOL ID_CROC
 
 %left '{' '}'
 
@@ -20,17 +20,20 @@ extern void yyerror(const char* s);
 %right '='
 
 %token _MATCH _WITH _END
+%token UNDERSCORE UNDERSCORE_SPACE SLASH_ID_SLASH SLASH_UNDERSCORE_SLASH
 
 %right IF THEN ELSE
 
 %token NUM
-%left _NOT
+%right _NOT
 %left _OR _AND
 %left _GEQ _GE _LEQ _LE _EQ _NEQ
 %left '+' '-'
 %left '*' '/'
 %left _NEG
 %left ')' '('
+
+%right APP_FUNC
 
 %token	<string_t>		TEXT
 %union {
@@ -81,25 +84,31 @@ Expr:			Foret
                 |       _FUN Args FLECHE Expr
                 |       '$' Import FLECHE Id_var
                 |       '$' Points Import FLECHE Id_var
-                |       Application
+                |       Application %prec APP_FUNC
                 |       Filtrage
 		;
 
-Filtrage:               _MATCH Id_var _WITH Filt_body _END
+Filtrage:               _MATCH Expr _WITH Filt_body _END
                 ;
 
-Filt_body:              Filt_body '|' Filt_arbre FLECHE Expr
+Filt_body:              '|' Filt_arbre FLECHE Expr Filt_body
+                |       '|' UNDERSCORE FLECHE Expr Filt_body
                 |       {}
                 ;
 
-Filt_arbre:             ID '{' Filt_contenu '}'
-                |       '_' '{' Filt_contenu '}'
+Filt_arbre:             ID_ACCOL Filt_contenu '}'
+                |       UNDERSCORE '{' Filt_contenu '}'
                 |       '{' Filt_contenu '}'
+                |       UNDERSCORE_SPACE
                 ;
 
-Filt_contenu:           Filt_contenu Filt_arbre
-                |       Filt_contenu ID
-                |       Filt_contenu '_'
+Filt_contenu:           Id_var Filt_contenu
+                |       Filt_arbre Filt_contenu
+                |       '*' UNDERSCORE '*' Filt_contenu
+                |       SLASH_UNDERSCORE_SLASH Filt_contenu
+                |       '*' Id_var '*' Filt_contenu
+                |       SLASH_ID_SLASH Filt_contenu
+                |       UNDERSCORE
                 |       {}
                 ;
 
@@ -176,7 +185,7 @@ Or:                     Expr _OR Expr
 And:                    Expr _AND Expr
                 ;
 
-Not:                    Expr _NOT Expr
+Not:                    _NOT Expr
                 ;
 
 If_then:                IF Expr THEN Expr ELSE Expr
@@ -186,10 +195,11 @@ If_then:                IF Expr THEN Expr ELSE Expr
  * Foret & Arbre
  */
 
-Arbre:                  ID Foret
-                |       ID '/'
-                |	ID '[' Attrs ']' Foret
-		|       ID '[' Attrs ']' '/'
+Arbre:                  ID_ACCOL '}'
+                |       ID_ACCOL A_contenu
+                |       ID_SLASH
+                |	ID_CROC Attrs ']' Foret
+		|       ID_CROC Attrs ']' '/'
 		;
 
 Foret:                  '{' '}'
