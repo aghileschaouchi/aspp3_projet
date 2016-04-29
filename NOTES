@@ -8,6 +8,8 @@ match exp with
 | {a /b/} -> e
 end //cela viole la regle ID/
 
+- $../chemin/file->var : chemin + file suivent la règle ID
+
 ****A faire:
 
 - z where z = x*2; (ok)

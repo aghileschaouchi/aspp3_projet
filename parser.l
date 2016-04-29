@@ -40,8 +40,8 @@ SPACE [[:space:]]+
                         return SLASH_ID_SLASH;
                    }
 
-{NUM}              {return NUM;}
-{ID_XML}           {return ID_XML;}
+{NUM}              {yylval.int_t = atoi(yytext); return NUM;}
+{ID_XML}           {yylval.string_t = strdup(yytext); return ID_XML;}
 {ID}               {yylval.string_t = strdup(yytext); return ID;}
 {ID}(\{|\/|\[)     {if (is_xml(yytext, yyleng))
                         return ERR; //XML{}
