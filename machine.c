@@ -22,13 +22,17 @@ void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
 
         case TREE:
 
-            fprintf(file, "<%s", ast->node->tree->label);
-            
             // Pour une balise vide de comme br/ 
             if(ast->node->tree->nullary){
-                fprintf(file, "/>\n");
+                fprintf(file, "\n");
+                putTab(tab, file);
+                fprintf(file, "<%s/>", ast->node->tree->label);
+                fprintf(file, "\n");
+                putTab(tab, file);
                 break;
             }
+
+            fprintf(file, "<%s", ast->node->tree->label);
                 
             // Si la balise a des variables, on les écrit 
             if(ast->node->tree->attributes != NULL){
@@ -55,7 +59,10 @@ void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
                 tab --;
             }
             if(ast->node->tree->attributes == NULL || ast->node->tree->daughters != NULL){
-                fprintf(file, "</%s>\n", ast->node->tree->label);
+                fprintf(file, "\n");
+                putTab(tab, file);
+                fprintf(file, "</%s>", ast->node->tree->label);
+                fprintf(file, "\n");
                 putTab(tab, file);
             }
             break;
