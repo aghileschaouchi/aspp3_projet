@@ -8,7 +8,7 @@ void test(void) {
     expect_ok(scan_file(f), "Parse basicTestOk.txt");
     fclose(f);
 
-    expect_ok(scan_string("div{f arg1 arg2, \"text\"}"),        "Parse a good string, error on ERRtest 11");
+    expect_ok(scan_string("div{let f arg1  = e1 in \"text\"}"),"Parse a good string, error on ERRtest 11");
     
     //on attend que la lecture de ces chaines renvoient une erreur -> donc ca PASS
     expect_err(scan_string("div{{\"test\"}"), 	           	"Parse a bad string, error on ERRtest 1");
