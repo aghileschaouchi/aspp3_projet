@@ -61,20 +61,26 @@ extern void yyerror(const char* s);
 %start Document												
 %%
 
-Document:		Document Arbre              {   process_content($2, $1);
+Document:		Document Arbre              {   struct closure * cl = process_content($2, $1);
+                                                        parcoursNode(cl->value, 0, yyout); //imprimer
                                                         $$ = $1;
+                                                        initial_env = $1;
                                                     }
-                |       Document Foret              {   process_content($2, $1);
+                |       Document Foret              {   struct closure * cl = process_content($2, $1);
+                                                        parcoursNode(cl->value, 0, yyout); //imprimer
                                                         $$ = $1;
+                                                        initial_env = $1;
                                                     }
                 |       Document LET Decl ';'       {   char* var = $3->node->app->fun->node->fun->id;
                                                         struct ast * expr = $3->node->app->arg;
                                                         $$ = process_binding_instruction(var, expr, $1);
+                                                        initial_env = $$;
                                                     }  
 		|	Document Expr ';'           {   process_instruction($2, $1);
                                                         $$ = $1;
+                                                        initial_env = $1;
                                                     }
-		|	%empty                      {   $$ = initial_env;   }
+		|	%empty                      {   $$ = NULL;   }
 		;
 
 Id_var:			ID                          {$$ = $1;}
@@ -201,25 +207,25 @@ Args:                   Id_var Args                 {$$ = mk_fun($1, $2);}
 Filtrage:               _MATCH Expr _WITH Filt_body _END                    {}
                 ;
 
-Filt_body:              '|' Filt_arbre FLECHE Expr Filt_body
-                |       '|' UNDERSCORE FLECHE Expr Filt_body
-                |       %empty {}
+Filt_body:              '|' Filt_arbre FLECHE Expr Filt_body                {}
+                |       '|' UNDERSCORE FLECHE Expr Filt_body                {}
+                |       %empty                                              {}
                 ;
 
-Filt_arbre:             ID_ACCOL Filt_contenu '}'
-                |       UNDERSCORE '{' Filt_contenu '}'
-                |       '{' Filt_contenu '}'
-                |       UNDERSCORE_SPACE
+Filt_arbre:             ID_ACCOL Filt_contenu '}'                           {}
+                |       UNDERSCORE '{' Filt_contenu '}'                     {}
+                |       '{' Filt_contenu '}'                                {}
+                |       UNDERSCORE_SPACE                                    {}
                 ;
 
-Filt_contenu:           Id_var Filt_contenu
-                |       Filt_arbre Filt_contenu
-                |       '*' UNDERSCORE '*' Filt_contenu
-                |       SLASH_UNDERSCORE_SLASH Filt_contenu
-                |       '*' Id_var '*' Filt_contenu
-                |       SLASH_ID_SLASH Filt_contenu
-                |       UNDERSCORE
-                |       %empty {}
+Filt_contenu:           Id_var Filt_contenu                                 {}
+                |       Filt_arbre Filt_contenu                             {}
+                |       '*' UNDERSCORE '*' Filt_contenu                     {}
+                |       SLASH_UNDERSCORE_SLASH Filt_contenu                 {}
+                |       '*' Id_var '*' Filt_contenu                         {}
+                |       SLASH_ID_SLASH Filt_contenu                         {}
+                |       UNDERSCORE                                          {}
+                |       %empty                                              {}
                 ;
 
 /***

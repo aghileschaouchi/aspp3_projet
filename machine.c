@@ -2,13 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include "machine.h"
-#include "pattern_matching.h"
-
-void emit(char * file, struct ast * ast);
-void parcoursNode(struct ast * ast, int tabulation, FILE * file);
-void parcoursAttributs(struct attributes * attrib, int tabulation, FILE * file);
-void putTab(int tab, FILE * file);
+#include "parser.h"
 
 void emit(char * file, struct ast * ast) {
 
@@ -80,7 +74,7 @@ void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
         case WORD:
             fprintf(file, "%s", ast->node->str);
             break;
-            
+
         default:
             //do something ?
             break;
@@ -840,10 +834,60 @@ void on_var(struct machine * m) {
 }
 
 void on_import(struct machine * m) {
-    assert(m != NULL);
-    fprintf(stderr,
-            "Import de fichier à implémenter");
-    exit(1);
+    assert(m != NULL && get_ast_type(m->closure->value) == IMPORT);
+
+    struct path * chemin = m->closure->value->node->chemin;
+    char * chemin_str = from_path_to_name(chemin);
+    char * name = NULL;
+    struct dir * d = chemin->dir;
+    while (d != NULL) {
+        if (d -> descr == DECLNAME){
+            name = d->str;
+        }
+        d = d->dir;
+    }
+    
+    assert(name != NULL);
+
+    struct env * env_backup = initial_env;
+    int yylineno_backup = yylineno;
+
+    initial_env = NULL;
+    yylineno = 1;
+
+    FILE* file = fopen(chemin_str, "r");
+    if (file == NULL) {
+        perror("Importation");
+        exit(1);
+    }
+
+    YY_BUFFER_STATE buffer = yy_create_buffer(file, YY_BUF_SIZE);
+    yypush_buffer_state(buffer);
+    yyparse();
+
+    struct closure * new_cl = mk_closure(NULL, initial_env);
+
+    struct files * f = all_file;
+    int found = 0;
+
+    for (; f != NULL; f = f->next) {
+        if (strcmp(f->file_name, chemin_str) == 0)
+            found = 1;
+        break;
+    }
+
+    if (found)
+        f->cl = new_cl;
+    else
+        add_file(chemin, new_cl, all_file);
+    
+    //error
+    m->closure = retrieve_name(chemin, name, all_file);
+    compute(m);
+    
+    yypop_buffer_state();    
+    initial_env = env_backup;
+    yylineno = yylineno_backup;
 }
 
 void on_app(struct machine * m) {

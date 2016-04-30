@@ -16,6 +16,8 @@ extern void yyerror(const char* s);
 typedef struct yy_buffer_state * YY_BUFFER_STATE;
 extern YY_BUFFER_STATE yy_scan_string(char * str);
 extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
+extern void yypush_buffer_state (YY_BUFFER_STATE new_buffer);
+extern void yypop_buffer_state (void);
 extern YY_BUFFER_STATE yy_create_buffer(FILE* file, int size);
 extern void yy_switch_to_buffer(YY_BUFFER_STATE new_buffer);
 

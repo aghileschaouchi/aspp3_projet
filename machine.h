@@ -148,7 +148,11 @@ void on_cond(struct machine * m);
 void on_decl_rec(struct machine * m);
 void on_fun(struct machine * m);
 
-
-
 void compute(struct machine * m);
+
+//pour emit
+void emit(char * file, struct ast * ast);
+void parcoursNode(struct ast * ast, int tabulation, FILE * file);
+void parcoursAttributs(struct attributes * attrib, int tabulation, FILE * file);
+void putTab(int tab, FILE * file);
 #endif

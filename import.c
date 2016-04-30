@@ -1,12 +1,40 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "import.h"
 
-char * from_path_to_name(struct path * chemin){
-    fprintf(stderr,"Fonction à implémenter");
-    exit(1);
-    return "";
+char * from_path_to_name(struct path * chemin) {
+    int i;
+    for (i = 0; i < chemin->n; i++) {
+        chdir("..");
+    }
+
+    char buffer[1024];
+    char* cwd = getcwd(buffer, sizeof (buffer));
+
+    if (cwd == NULL) {
+        fprintf(stderr, "Change dir failed :( %s", cwd);
+        exit(1);
+    }
+
+    struct dir * d = chemin->dir;
+    int len = strlen(cwd);
+    char* result = malloc(len);
+    strncpy(result, cwd, len);
+    
+    while (d != NULL) {
+        if (d -> descr != DECLNAME) {
+            len += strlen(d->str);
+            result = realloc(result, len);
+            strcat(result, "/");
+            strcat(result, d->str);
+        }
+            
+        d = d -> dir;
+    }
+    
+    return result;
 }
 
 struct closure * retreive_tree(struct path * chemin,struct files * f){
@@ -25,13 +53,15 @@ struct closure * retreive_tree(struct path * chemin,struct files * f){
 
 struct closure * retrieve_name(struct path * chemin, char * name, struct files * f){
     struct closure * cl = retreive_tree(chemin,f);
-    struct env * e = cl->env;
-    while(e!=NULL){
-        if(!strcmp(name,e->var)){
-            return  e->value;
-        }
-        else{
-            e=e->next;
+    if (cl) {
+
+        struct env * e = cl->env;
+        while (e != NULL) {
+            if (!strcmp(name, e->var)) {
+                return e->value;
+            } else {
+                e = e->next;
+            }
         }
     }
     fprintf(stderr,
@@ -41,6 +71,7 @@ struct closure * retrieve_name(struct path * chemin, char * name, struct files *
 }
 
 struct env * initial_env = NULL;
+struct files * all_file = NULL;
 
 struct env * process_binding_instruction(char * name, struct ast * a, struct env * e){
     struct machine * m = malloc(sizeof(struct machine));
@@ -70,11 +101,14 @@ struct closure * process_content(struct ast * a, struct env * e){
     m->stack=NULL;
     compute(m);
     if(m->closure->value->type==TREE || m->closure->value->type==FOREST){
+        struct closure * cl = m->closure;
+        
         free(m);
-        return m->closure;
+        
+        return cl;
     }
     else{
-        fprintf(stderr,"Le contenu d'un fichier doit être un arbre ou une forêt");
+        fprintf(stderr,"Le contenu d'un fichier doit être un arbre ou une forêt %d", m->closure->value->type);
         exit(1);
     }
 }

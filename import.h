@@ -2,6 +2,8 @@
 #define IMPORT_FILE
 #include "machine.h"
 
+struct files * all_file;
+
 struct files {
     char * file_name;
     struct closure * cl;
