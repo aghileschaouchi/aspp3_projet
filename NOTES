@@ -1,4 +1,14 @@
 - mots-clefs réservés (let, in, where) NE PEUVENT etre utilisé comme nom du noeud eg. let{}, in{}, where{} et nom d'attributs eg. img[let="some value"]/
+- pour les args des fonctions: ils doivent être une expression unie (soit parenthésée, soit arbre, num, foret...)
+- Probleme:
+
+if a then b else {} : cela viole la règle ID{}
+
+match exp with
+| {a /b/} -> e
+end //cela viole la regle ID/
+
+- $../chemin/file->var : chemin + file suivent la règle ID
 
 ****A faire:
 
@@ -7,6 +17,8 @@
 - let x = 2 in z where z = x+2; (ok)
 - parentheses (ok)
 - if then else (ok)
+- comparaison (geq, eq, leq,...) OK
+- fonction ? fonction récursive (OK, a tester)
 
-- fonction ? fonction récursive
 - match ?
+- unary minus (-1, -3...)

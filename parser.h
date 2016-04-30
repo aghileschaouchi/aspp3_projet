@@ -3,6 +3,7 @@
 
 #include "pattern_matching.h"
 #include "import.h"
+#include "ast.h"
 
 #define YY_BUF_SIZE 16384
 
@@ -17,3 +18,12 @@ extern YY_BUFFER_STATE yy_scan_string(char * str);
 extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
 extern YY_BUFFER_STATE yy_create_buffer(FILE* file, int size);
 extern void yy_switch_to_buffer(YY_BUFFER_STATE new_buffer);
+
+/**
+ * EXTENSION DE L'AST
+ */
+#ifdef AST
+//gestion des atttributs
+struct attributes * mk_attribute(struct ast * key, struct ast * value);
+void afficher_foret(struct ast * foret);
+#endif

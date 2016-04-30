@@ -118,6 +118,4 @@ struct ast * mk_fun(char * id, struct ast * body);
 struct ast * mk_match(struct ast * ast, struct patterns * patterns);
 struct ast * mk_cond(struct ast * cond, struct ast * then_br, struct ast * else_br);
 struct ast * mk_declrec(char * id, struct ast * body);
-struct attributes * make_attribute(struct ast * key, struct ast * value);
-void afficher_foret(struct ast * foret);
 #endif

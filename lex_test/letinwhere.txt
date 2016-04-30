@@ -10,12 +10,57 @@ film{ titre{"Made in USA"} auteur{"Godard"} annee{"1966"}}
 film{ titre{"Pierrot le fou"} auteur{"Godard"} annee{"1965"}}
 
 film{ annee{"1963"} titre{"Les oiseaux"} auteur{"Hitchcock"}}
-} in div{root};
 
-div{
-"this" 
-is, 
-"a " 
-concat, 
-	a{what}
-	}
+
+};
+
+let auteurs={auteur{"Godard"} auteur{"Hitchcock"}};
+
+
+let rec get_titre = fun film ->
+    match film with
+      | {titre{z} /b/} -> z
+      | {a /b/} -> get_titre b
+    end;
+
+let rec cherche_auteur_du_film = fun film auteur ->
+    match film with
+     | {} -> {}
+     | {auteur{a} /_/} ->        
+      	    if a==auteur
+	    then get_titre x
+            else {}
+     | { _ /y/} -> chercher_auteur_du_film y auteur
+    end;
+
+
+let rec cherche_auteur = fun arbre auteur ->
+    match arbre with
+      | {} -> {}
+      | {film{x} /y/} ->
+        { cherche_auteur_du_film x auteur, cherche_auteur y auteur}
+    end;
+
+
+
+let create_page = fun auteur ->
+    emit (auteur + ".html")
+    	 {
+	  html{
+	   header{}
+	   body{
+	    h1{
+	     "films de l'auteur:" auteur }
+	    contenu
+	   }
+	  }
+	 }
+	 where contenu = cherche_auteur root auteur;
+
+
+let rec pages_auteur = fun liste_auteurs ->
+    match liste_auteurs with
+      | {auteur{x} /y/} -> {create_page x, pages_auteur y}
+      | {} -> {}
+    end
+    in pages_auteur root;

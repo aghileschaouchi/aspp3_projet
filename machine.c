@@ -5,25 +5,31 @@
 #include "machine.h"
 #include "pattern_matching.h"
 
+void emit(char * file, struct ast * ast);
+void parcoursNode(struct ast * ast, int tabulation, FILE * file);
+void parcoursAttributs(struct attributes * attrib, int tabulation, FILE * file);
+void putTab(int tab, FILE * file);
+
 void emit(char * file, struct ast * ast) {
 
     FILE * file1 = fopen(file, "w");
     parcoursNode(ast, 0, file1);
     fclose(file1);
 
-//    div{a{"a"} "a" b{b{} "a"} "b"}
+    //    div{a{"a"} "a" b{b{} "a"} "b"}
     return;
 }
 
 // Parcours noeud
+
 void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
     int tab = tabulation;
-    switch (ast->type){
+    switch (ast->type) {
 
         case TREE:
 
             // Pour une balise vide de comme br/ 
-            if(ast->node->tree->nullary){
+            if (ast->node->tree->nullary) {
                 fprintf(file, "\n");
                 putTab(tab, file);
                 fprintf(file, "<%s/>", ast->node->tree->label);
@@ -33,32 +39,30 @@ void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
             }
 
             fprintf(file, "<%s", ast->node->tree->label);
-                
+
             // Si la balise a des variables, on les écrit 
-            if(ast->node->tree->attributes != NULL){
+            if (ast->node->tree->attributes != NULL) {
                 parcoursAttributs(ast->node->tree->attributes, tab, file);
                 // Si elle n'a pas de text derrière, on rajoute un / 
-                if(ast->node->tree->daughters == NULL){
+                if (ast->node->tree->daughters == NULL) {
                     fprintf(file, "/>");
-                }
-                else{
+                } else {
                     fprintf(file, ">");
                 }
-            }
-            else{
+            } else {
                 fprintf(file, ">\n");
-                tab ++;
+                tab++;
                 putTab(tab, file);
             }
-            
+
             // On écrit tout ce qu'il y a entre les balises 
-            if(ast->node->tree->daughters != NULL){
+            if (ast->node->tree->daughters != NULL) {
                 parcoursNode(ast->node->tree->daughters, tab, file);
             }
-            if(ast->node->tree->attributes == NULL){
-                tab --;
+            if (ast->node->tree->attributes == NULL) {
+                tab--;
             }
-            if(ast->node->tree->attributes == NULL || ast->node->tree->daughters != NULL){
+            if (ast->node->tree->attributes == NULL || ast->node->tree->daughters != NULL) {
                 fprintf(file, "\n");
                 putTab(tab, file);
                 fprintf(file, "</%s>", ast->node->tree->label);
@@ -69,12 +73,16 @@ void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
 
         case FOREST:
             parcoursNode(ast->node->forest->head, tab, file);
-            if(ast->node->forest->tail != NULL)
+            if (ast->node->forest->tail != NULL)
                 parcoursNode(ast->node->forest->tail, tab, file);
             break;
 
         case WORD:
             fprintf(file, "%s", ast->node->str);
+            break;
+            
+        default:
+            //do something ?
             break;
     }
 
@@ -86,12 +94,13 @@ void parcoursAttributs(struct attributes * attrib, int tabulation, FILE * file) 
     fprintf(file, "=\"");
     parcoursNode(attrib->value, tabulation, file);
     fprintf(file, "\"");
-    if(attrib->next != NULL)
+    if (attrib->next != NULL)
         parcoursAttributs(attrib->next, tabulation, file);
 }
 
-void putTab(int tab, FILE * file){
-    for(int i=tab; i!=0; i--){
+void putTab(int tab, FILE * file) {
+    int i;
+    for (i = tab; i != 0; i--) {
         fprintf(file, "  ");
     }
 }
@@ -384,16 +393,13 @@ void reconstruct_forest(struct machine * m, struct ast * tail) {
 }
 
 void pop_forestcomphead(struct machine * m) {
-    char * c;
     struct ast * head;
     struct ast * tail;
     struct env * env;
     enum ast_type tp = get_ast_type(m->closure->value);
     switch (tp) {
         case INTEGER:
-            c = malloc(21 * sizeof (char));
-            sprintf(c, "%d", m->closure->value->node->num);
-            head = mk_word(c);
+            head = mk_word(string_of_int(m->closure->value->node->num));
             break;
         case TREE:
         case WORD:
@@ -554,8 +560,7 @@ void on_integer(struct machine * m) {
                 exit(1);
                 break;
             case TREECOMPFOREST:
-                fprintf(stderr, "Erreur de typage, un entier ne peut constituer une forêt.");
-                exit(1);
+                pop_treecompforest(m);
                 break;
             case ATTCOMPKEY:
                 fprintf(stderr, "Erreur de typage, un entier ne peut être la clé d'un attribut.");
@@ -572,8 +577,7 @@ void on_integer(struct machine * m) {
                 pop_forestcomphead(m);
                 break;
             case FORESTCOMPTAIL:
-                fprintf(stderr, "Erreur de typage, un entier ne peut être utilisé comme forêt.");
-                exit(1);
+                pop_forestcomptail(m);
                 break;
             case FUNCTION:
                 pop_function(m);
@@ -701,8 +705,7 @@ void on_binop(struct machine * m) {
                             pop_stack(m);
                             compute(m);
                             return;
-                        }
-                        else {
+                        } else {
                             k = strcmp(m->stack->top->item->closure->value->node->str,
                                     m->stack->next->top->item->closure->value->node->str);
                             switch (m->closure->value->node->binop) {
@@ -761,8 +764,7 @@ void on_binop(struct machine * m) {
                         } else {
                             fprintf(stderr, "Erreur de typage, le seul opérateur possible entreforêts est +");
                         }
-                    }
-                    else {
+                    } else {
                         fprintf(stderr, "Erreur de typage, les opérations binaires ne peuvent prendre en argument que des entiers, des mots ou des forêts.");
                     }
                 } else {
@@ -864,8 +866,7 @@ void on_word(struct machine * m) {
                 exit(1);
                 break;
             case TREECOMPFOREST:
-                fprintf(stderr, "Erreur de typage, un mot ne peut constituer une forêt.");
-                exit(1);
+                pop_treecompforest(m);
                 break;
             case ATTCOMPKEY:
                 pop_attcompkey(m);
@@ -912,6 +913,9 @@ void on_tree(struct machine * m) {
             switch (m->stack->top->type) {
                 case FUNCTION:
                     pop_function(m);
+                    break;
+                case TREECOMPFOREST:
+                    pop_treecompforest(m);
                     break;
                 case FORESTCOMPHEAD:
                     pop_forestcomphead(m);

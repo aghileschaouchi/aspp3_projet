@@ -108,21 +108,3 @@ struct ast * mk_declrec(char * id, struct ast * body){
     e->node->fun->body=body;
     return e;
 }
-struct attributes * make_attribute(struct ast * key, struct ast * value){
-    struct attributes * a = malloc(sizeof(struct attributes));
-    a -> key = key;
-    a -> value = value;
-    return a;
-}
-
-void afficher_foret(struct ast * foret){
-   static int i = 1;
-   if(foret != NULL){
-   printf("---------Foret n° %d ----------\n",i);
-   if(foret->node->forest->head != NULL)
-     printf("/HEAD/ \n");
-   if(foret->node->forest->tail !=NULL)
-     printf("\Tail\ \n");
-   i++;
-	}
- }
