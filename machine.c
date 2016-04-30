@@ -9,12 +9,51 @@ void emit(char * file, struct ast * ast) {
     FILE * file1 = fopen(file, "w");
     parcoursNode(ast, 0, file1);
     fclose(file1);
-
-    //    div{a{"a"} "a" b{b{} "a"} "b"}
     return;
 }
 
-// Parcours noeud
+void putStringToHTMLCode(FILE * file, char* string){
+    int i = 0;
+    while(string[i] != '\0'){
+        switch (string[i]) {
+            case '\t' :      fprintf(file, "%s","&#9;");        break;
+            case '\n' :      fprintf(file, "%s","&#10;");        break;
+            case '!' :      fprintf(file, "%s","&#33;");        break;
+            case '"' :      fprintf(file, "%s","&#34;");        break;
+            case '#' :      fprintf(file, "%s","&#35;");         break;
+            case '$' :      fprintf(file, "%s","&#36;");      break;
+            case '%' :      fprintf(file, "%s","&#37;");      break;
+            case '&' :      fprintf(file, "%s","&#38;");         break;
+            case '\'' :     fprintf(file, "%s","&#39;");        break;
+            case '(' :      fprintf(file, "%s","&#40;");        break;
+            case ')' :      fprintf(file, "%s","&#41;");        break;
+            case '*' :      fprintf(file, "%s","&#42;");         break;
+            case '+' :      fprintf(file, "%s","&#43;");        break;
+            case ',' :      fprintf(file, "%s","&#44;");       break;
+            case '.' :      fprintf(file, "%s","&#46;");      break;
+            case '/' :      fprintf(file, "%s","&#47;");         break;
+            case ':' :      fprintf(file, "%s","&#58;");       break;
+            case ';' :      fprintf(file, "%s","&#59;");        break;
+            case '<' :      fprintf(file, "%s","&#60;");          break;
+            case '=' :      fprintf(file, "%s","&#61;");      break;
+            case '>' :      fprintf(file, "%s","&#62;");          break;
+            case '?' :      fprintf(file, "%s","&#63;");       break;
+            case '@' :      fprintf(file, "%s","&#64;");      break;
+            case '[' :      fprintf(file, "%s","&#91;");        break;
+            case '\\' :     if(string[i+1] == '"'){fprintf(file, "%s","&#34;");i++;}
+                            else fprintf(file, "%s","&#92;");   break;
+            case ']' :      fprintf(file, "%s","&#93;");        break;
+            case '^' :      fprintf(file, "%s","&#94;");         break;
+            case '_' :      fprintf(file, "%s","&#95;");      break;
+            case '`' :      fprintf(file, "%s","&#96;");       break;
+            case '{' :      fprintf(file, "%s","&#123;");        break;
+            case '|' :      fprintf(file, "%s","&#124;");      break;
+            case '}' :      fprintf(file, "%s","&#125;");        break;
+            default:        fprintf(file, "%s",string[i]);       break;
+        }
+        i++;
+    } 
+}
 
 void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
     int tab = tabulation;
@@ -72,11 +111,11 @@ void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
             break;
 
         case WORD:
+           // putStringToHTMLCode(file, ast->node->str);
             fprintf(file, "%s", ast->node->str);
             break;
 
         default:
-            //do something ?
             break;
     }
 

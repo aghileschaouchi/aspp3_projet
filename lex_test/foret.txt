@@ -1,7 +1,7 @@
-let xml1 = a{};
-let x2 = {a{"huhu"}{{}}};
+let xml1 = a{} in  {};
+let x2 = {a{"huhu"}{{}}} in  {};
 
-x2;
+let x2 = 5;
 
 br/
 
@@ -9,8 +9,10 @@ img[
 	src =           "http//placehold.it/300x300"
 	alt="My Image"	
 ]/
-
-div{
+let is = {"toto"};
+let concat=1;
+let what= {"otot"};
+ div{
 "this" 
 is, 
 "a " 
@@ -18,8 +20,12 @@ concat,
 	a{what}
 	}
 
-{div{"hehe" a[href="http://google.com"alt="hehe"]{"huhu"}{}{h1{"kaka"}}}}
-
+div{"hehe" a[href="http://google.com"alt="hehe"]{"huhu"}{}{h1{"kaka"}}}
+let b=div{"text"};
+let e= 5;
+let f e = 5;
+let e' =10;
+let h e' = 10 ;
 div{"contenu ..." let a = (if e then f else g) b in
                       if e' then h a else k a,
                   foo 4,
