@@ -72,6 +72,7 @@ struct pattern{
     union pnode * pnode;
 };
 
+struct pattern * mk_pnode(void);
 struct pattern * mk_ptree(char * label, bool nullary, struct pattern * daughters);
 struct pattern * mk_anytree(bool nullary, struct pattern * daughters);
 struct pattern * mk_pforest(struct pattern * head, struct pattern * tail);

@@ -27,3 +27,9 @@ extern void yy_switch_to_buffer(YY_BUFFER_STATE new_buffer);
 struct attributes * mk_attribute(struct ast * key, struct ast * value);
 void afficher_foret(struct ast * foret);
 #endif
+
+/**
+ * Implementation de chemin
+ */
+struct path * mk_path(int n, struct dir * dir);
+struct dir * mk_dir(char * str, enum descr descr, struct dir * dir);
