@@ -12,47 +12,82 @@ void emit(char * file, struct ast * ast) {
     return;
 }
 
-void putStringToHTMLCode(FILE * file, char* string){
+void putStringToHTMLCode(FILE * file, char* string) {
     int i = 0;
-    while(string[i] != '\0'){
+    while (string[i] != '\0') {
         switch (string[i]) {
-            case '\t' :      fprintf(file, "%s","&#9;");        break;
-            case '\n' :      fprintf(file, "%s","&#10;");        break;
-            case '!' :      fprintf(file, "%s","&#33;");        break;
-            case '"' :      fprintf(file, "%s","&#34;");        break;
-            case '#' :      fprintf(file, "%s","&#35;");         break;
-            case '$' :      fprintf(file, "%s","&#36;");      break;
-            case '%' :      fprintf(file, "%s","&#37;");      break;
-            case '&' :      fprintf(file, "%s","&#38;");         break;
-            case '\'' :     fprintf(file, "%s","&#39;");        break;
-            case '(' :      fprintf(file, "%s","&#40;");        break;
-            case ')' :      fprintf(file, "%s","&#41;");        break;
-            case '*' :      fprintf(file, "%s","&#42;");         break;
-            case '+' :      fprintf(file, "%s","&#43;");        break;
-            case ',' :      fprintf(file, "%s","&#44;");       break;
-            case '.' :      fprintf(file, "%s","&#46;");      break;
-            case '/' :      fprintf(file, "%s","&#47;");         break;
-            case ':' :      fprintf(file, "%s","&#58;");       break;
-            case ';' :      fprintf(file, "%s","&#59;");        break;
-            case '<' :      fprintf(file, "%s","&#60;");          break;
-            case '=' :      fprintf(file, "%s","&#61;");      break;
-            case '>' :      fprintf(file, "%s","&#62;");          break;
-            case '?' :      fprintf(file, "%s","&#63;");       break;
-            case '@' :      fprintf(file, "%s","&#64;");      break;
-            case '[' :      fprintf(file, "%s","&#91;");        break;
-            case '\\' :     if(string[i+1] == '"'){fprintf(file, "%s","&#34;");i++;}
-                            else fprintf(file, "%s","&#92;");   break;
-            case ']' :      fprintf(file, "%s","&#93;");        break;
-            case '^' :      fprintf(file, "%s","&#94;");         break;
-            case '_' :      fprintf(file, "%s","&#95;");      break;
-            case '`' :      fprintf(file, "%s","&#96;");       break;
-            case '{' :      fprintf(file, "%s","&#123;");        break;
-            case '|' :      fprintf(file, "%s","&#124;");      break;
-            case '}' :      fprintf(file, "%s","&#125;");        break;
-            default:        fprintf(file, "%s",string[i]);       break;
+            case '\t': fprintf(file, "%s", "&#9;");
+                break;
+            case '\n': fprintf(file, "%s", "&#10;");
+                break;
+            case '!': fprintf(file, "%s", "&#33;");
+                break;
+            case '"': fprintf(file, "%s", "&#34;");
+                break;
+            case '#': fprintf(file, "%s", "&#35;");
+                break;
+            case '$': fprintf(file, "%s", "&#36;");
+                break;
+            case '%': fprintf(file, "%s", "&#37;");
+                break;
+            case '&': fprintf(file, "%s", "&#38;");
+                break;
+            case '\'': fprintf(file, "%s", "&#39;");
+                break;
+            case '(': fprintf(file, "%s", "&#40;");
+                break;
+            case ')': fprintf(file, "%s", "&#41;");
+                break;
+            case '*': fprintf(file, "%s", "&#42;");
+                break;
+            case '+': fprintf(file, "%s", "&#43;");
+                break;
+            case ',': fprintf(file, "%s", "&#44;");
+                break;
+            case '.': fprintf(file, "%s", "&#46;");
+                break;
+            case '/': fprintf(file, "%s", "&#47;");
+                break;
+            case ':': fprintf(file, "%s", "&#58;");
+                break;
+            case ';': fprintf(file, "%s", "&#59;");
+                break;
+            case '<': fprintf(file, "%s", "&#60;");
+                break;
+            case '=': fprintf(file, "%s", "&#61;");
+                break;
+            case '>': fprintf(file, "%s", "&#62;");
+                break;
+            case '?': fprintf(file, "%s", "&#63;");
+                break;
+            case '@': fprintf(file, "%s", "&#64;");
+                break;
+            case '[': fprintf(file, "%s", "&#91;");
+                break;
+            case '\\': if (string[i + 1] == '"') {
+                    fprintf(file, "%s", "&#34;");
+                    i++;
+                } else fprintf(file, "%s", "&#92;");
+                break;
+            case ']': fprintf(file, "%s", "&#93;");
+                break;
+            case '^': fprintf(file, "%s", "&#94;");
+                break;
+            case '_': fprintf(file, "%s", "&#95;");
+                break;
+            case '`': fprintf(file, "%s", "&#96;");
+                break;
+            case '{': fprintf(file, "%s", "&#123;");
+                break;
+            case '|': fprintf(file, "%s", "&#124;");
+                break;
+            case '}': fprintf(file, "%s", "&#125;");
+                break;
+            default: fprintf(file, "%s", string[i]);
+                break;
         }
         i++;
-    } 
+    }
 }
 
 void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
@@ -111,7 +146,7 @@ void parcoursNode(struct ast * ast, int tabulation, FILE * file) {
             break;
 
         case WORD:
-           // putStringToHTMLCode(file, ast->node->str);
+            // putStringToHTMLCode(file, ast->node->str);
             fprintf(file, "%s", ast->node->str);
             break;
 
@@ -880,53 +915,62 @@ void on_import(struct machine * m) {
     char * name = NULL;
     struct dir * d = chemin->dir;
     while (d != NULL) {
-        if (d -> descr == DECLNAME){
+        if (d -> descr == DECLNAME) {
             name = d->str;
         }
         d = d->dir;
     }
-    
+
     assert(name != NULL);
-
-    struct env * env_backup = initial_env;
-    int yylineno_backup = yylineno;
-
-    initial_env = NULL;
-    yylineno = 1;
-
-    FILE* file = fopen(chemin_str, "r");
-    if (file == NULL) {
-        perror("Importation");
-        exit(1);
-    }
-
-    YY_BUFFER_STATE buffer = yy_create_buffer(file, YY_BUF_SIZE);
-    yypush_buffer_state(buffer);
-    yyparse();
-
-    struct closure * new_cl = mk_closure(NULL, initial_env);
 
     struct files * f = all_file;
     int found = 0;
 
     for (; f != NULL; f = f->next) {
-        if (strcmp(f->file_name, chemin_str) == 0)
+        if (strcmp(f->file_name, chemin_str) == 0) {
             found = 1;
-        break;
+            break;
+        }
     }
 
-    if (found)
-        f->cl = new_cl;
-    else
+    if (!found) {
+        struct env * env_backup = initial_env;
+        int yylineno_backup = yylineno;
+
+        initial_env = NULL;
+        yylineno = 1;
+
+        FILE* file = fopen(chemin_str, "r");
+        if (file == NULL) {
+            perror("Importation");
+            exit(1);
+        }
+
+        YY_BUFFER_STATE buffer = yy_create_buffer(file, YY_BUF_SIZE);
+        yypush_buffer_state(buffer);
+        yyparse();
+
+        struct closure * new_cl = mk_closure(NULL, initial_env);
         add_file(chemin, new_cl, all_file);
-    
-    //error
-    m->closure = retrieve_name(chemin, name, all_file);
-    compute(m);
-    
-    yypop_buffer_state();    
-    initial_env = env_backup;
-    yylineno = yylineno_backup;
+
+        struct env * e = initial_env;
+        while (e != NULL) {
+            if (!strcmp(name, e->var)) {
+                m->closure = e->value;
+                compute(m);
+                break;
+            } else {
+                e = e->next;
+            }
+        }
+
+        yypop_buffer_state();
+        initial_env = env_backup;
+        yylineno = yylineno_backup;
+    } else {
+        m->closure = f->cl;
+        compute(m);
+    }
 }
 
 void on_app(struct machine * m) {

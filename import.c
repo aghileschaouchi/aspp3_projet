@@ -25,7 +25,7 @@ char * from_path_to_name(struct path * chemin) {
     
     while (d != NULL) {
         if (d -> descr != DECLNAME) {
-            len += strlen(d->str);
+            len += strlen(d->str) + 1;
             result = realloc(result, len);
             strcat(result, "/");
             strcat(result, d->str);
